@@ -1,0 +1,28 @@
+@using ExpenseSystem.Models
+@model List<Expense>
+
+<h2>報銷列表</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>金額</th>
+            <th>日期</th>
+            <th>說明</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.ExpenseId</td>
+                <td>@item.Title</td>
+                <td>@item.Amount</td>
+                <td>@item.ExpenseDate</td>
+                <td>@item.Description</td>
+            </tr>
+        }
+    </tbody>
+</table>
