@@ -22,7 +22,12 @@
                 <td>@item.Amount</td>
                 <td>@item.ExpenseDate</td>
                 <td>@item.Description</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ExpenseId">修改</a>
+                    <a asp-action="Delete" asp-route-id="@item.ExpenseId">刪除</a>
+                </td>
             </tr>
+
         }
     </tbody>
 </table>
