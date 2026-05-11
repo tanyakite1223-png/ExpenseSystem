@@ -27,7 +27,6 @@ namespace ExpenseSystem.Controllers
             return View();
         }
 
-
         [HttpPost]
         public IActionResult Create(Expense expense)
         {
@@ -37,11 +36,60 @@ namespace ExpenseSystem.Controllers
                 _context.SaveChanges();
                 return RedirectToAction("Index");
             }
-            else
+
+            return View(expense);
+
+        }
+
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            var expense = _context.Expenses.Find(id);
+
+            if (expense == null)
             {
-                return View(expense);
+                return NotFound();
             }
 
+            return View(expense);
+        }
+
+        [HttpPost]
+        public IActionResult Edit(Expense expense)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Expenses.Update(expense);
+                _context.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            return View(expense);
+
+        }
+
+
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            var expense = _context.Expenses.Find(id);
+
+            if (expense == null)
+            {
+                return NotFound();
+            }
+
+            return View(expense);
+        }
+
+        [HttpPost]
+        [ActionName("Delete")]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var expense = _context.Expenses.Find(id);
+            _context.Expenses.Remove(expense);
+            _context.SaveChanges();
+            return RedirectToAction("Index");
         }
     }
 }

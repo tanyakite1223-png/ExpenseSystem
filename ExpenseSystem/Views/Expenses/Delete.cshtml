@@ -1,0 +1,24 @@
+@using ExpenseSystem.Models
+@model Expense
+
+<form asp-action="Delete" method="Post">
+    <div>
+        <input asp-for="ExpenseId" type="hidden">
+
+            <label asp-for="Title"></label>
+            <input asp-for="Title" readonly>
+                <p />
+                <label asp-for="Amount"></label>
+                <input asp-for="Amount" readonly>
+                    <p />
+                    <label asp-for="ExpenseDate"></label>
+                    <input asp-for="ExpenseDate" readonly>
+                        <p />
+                        <label asp-for="Description"></label>
+                        <input asp-for="Description" readonly>
+                            <p />
+                        </div>
+
+                        <button type="submit">刪除</button>
+                        <a asp-action="Index">取消</a>
+                    </form>
