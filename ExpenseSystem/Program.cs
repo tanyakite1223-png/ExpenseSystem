@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using ExpenseSystem.Data;
-using ExpenseSystem.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
