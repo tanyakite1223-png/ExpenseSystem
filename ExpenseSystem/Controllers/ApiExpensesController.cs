@@ -1,4 +1,5 @@
 using ExpenseSystem.Data;
+using ExpenseSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -21,6 +22,20 @@ namespace ExpenseSystem.Controllers
             var expenses = _context.Expenses.ToList();
             return Ok(expenses);
         }
+
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            var expense = _context.Expenses.Find(id);
+
+            if (expense == null)
+            {
+                return NotFound();
+            }
+            return Ok(expense);
+        }
+
+
 
     }
 }
