@@ -35,7 +35,13 @@ namespace ExpenseSystem.Controllers
             return Ok(expense);
         }
 
-
+        [HttpPost]
+        public async Task<IActionResult> Create(Expense expense)
+        {
+            _context.Expenses.Add(expense);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction("GetById", new { id = expense.ExpenseId }, expense);
+        }
 
     }
 }
