@@ -16,15 +16,23 @@ namespace ExpenseSystem.Controllers
             _context = context;
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
-        public IActionResult GetAll()
+        public ActionResult<List<Expense>> GetAll()
         {
             var expenses = _context.Expenses.ToList();
             return Ok(expenses);
         }
 
+
+        /// <summary>
+        /// 根據 ID 查詢單筆報銷紀錄
+        /// </summary>
+        /// <param name="id">報銷紀錄的 ID</param>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public ActionResult<Expense> GetById(int id)
         {
             var expense = _context.Expenses.Find(id);
 
@@ -35,6 +43,8 @@ namespace ExpenseSystem.Controllers
             return Ok(expense);
         }
 
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost]
         public async Task<IActionResult> Create(Expense expense)
         {
@@ -43,6 +53,10 @@ namespace ExpenseSystem.Controllers
             return CreatedAtAction("GetById", new { id = expense.ExpenseId }, expense);
         }
 
+
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, Expense expense)
         {
@@ -71,6 +85,9 @@ namespace ExpenseSystem.Controllers
             }
         }
 
+
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
