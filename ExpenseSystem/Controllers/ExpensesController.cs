@@ -1,10 +1,12 @@
 using ExpenseSystem.Data;
 using Microsoft.AspNetCore.Mvc;
 using ExpenseSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace ExpenseSystem.Controllers
 {
+    [Authorize]
     public class ExpensesController : Controller
     {
         private readonly ExpenseDbContext _context;
