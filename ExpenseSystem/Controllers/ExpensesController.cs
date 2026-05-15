@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ExpenseSystem.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "admin")]
     public class ExpensesController : Controller
     {
         private readonly ExpenseDbContext _context;
