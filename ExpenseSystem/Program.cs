@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
     options.LoginPath = "/Login/Index";
+    options.AccessDeniedPath = "/Expenses/Index";
 });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

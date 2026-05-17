@@ -24,18 +24,29 @@ namespace ExpenseSystem.Controllers
                 return View(model);
             }
 
-            if (model.Username != "admin" || model.Password != "1234")
+            List<Claim> claims;
+            if (model.Username == "admin" && model.Password == "1234")
+            {
+                claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, model.Username),
+                    new Claim(ClaimTypes.Role, "Manager")
+                };
+
+            }
+            else if (model.Username == "amber" && model.Password == "5678")
+            {
+                claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, model.Username),
+                    new Claim(ClaimTypes.Role, "Employee")
+                };
+            }
+            else
             {
                 ModelState.AddModelError("", "帳號或密碼錯誤");
                 return View(model);
             }
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, model.Username),
-                new Claim(ClaimTypes.Role, "admin")
-            };
-
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
