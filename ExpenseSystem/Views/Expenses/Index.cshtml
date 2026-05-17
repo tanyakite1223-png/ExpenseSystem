@@ -1,6 +1,7 @@
 @using ExpenseSystem.Models
 @model List<Expense>
 
+
 <h2>報銷列表</h2>
 <a asp-action="Create">新增</a>
 <a asp-controller="Login" asp-action="Logout">登出</a>
@@ -25,7 +26,12 @@
                 <td>@item.Description</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.ExpenseId">修改</a>
-                    <a asp-action="Delete" asp-route-id="@item.ExpenseId">刪除</a>
+
+                    @if (User.IsInRole("Manager"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.ExpenseId">刪除</a>
+                    }
+                    
                 </td>
             </tr>
 

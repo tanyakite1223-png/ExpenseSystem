@@ -3,10 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using ExpenseSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 
-
 namespace ExpenseSystem.Controllers
 {
-    [Authorize(Roles = "admin")]
+    [Authorize]
     public class ExpensesController : Controller
     {
         private readonly ExpenseDbContext _context;
@@ -71,6 +70,7 @@ namespace ExpenseSystem.Controllers
         }
 
 
+        [Authorize(Roles = "Manager")]
         [HttpGet]
         public IActionResult Delete(int id)
         {
@@ -84,6 +84,7 @@ namespace ExpenseSystem.Controllers
             return View(expense);
         }
 
+        [Authorize(Roles = "Manager")]
         [HttpPost]
         [ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
