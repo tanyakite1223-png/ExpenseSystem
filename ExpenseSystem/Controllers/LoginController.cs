@@ -1,14 +1,18 @@
 using ExpenseSystem.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseSystem.Controllers
 {
     public class LoginController : Controller
     {
+        private readonly SignInManager<IdentityUser> _signInManager;
+
+        public LoginController(SignInManager<IdentityUser> signInManager)
+        {
+            _signInManager = signInManager;
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -24,42 +28,20 @@ namespace ExpenseSystem.Controllers
                 return View(model);
             }
 
-            List<Claim> claims;
-            if (model.Username == "admin" && model.Password == "1234")
-            {
-                claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, model.Username),
-                    new Claim(ClaimTypes.Role, "Manager")
-                };
+            var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
 
-            }
-            else if (model.Username == "amber" && model.Password == "5678")
-            {
-                claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, model.Username),
-                    new Claim(ClaimTypes.Role, "Employee")
-                };
-            }
-            else
+            if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "帳號或密碼錯誤");
                 return View(model);
             }
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
             return RedirectToAction("Index", "Expenses");
         }
 
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Index");
         }
 
