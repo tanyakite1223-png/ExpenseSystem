@@ -7,11 +7,16 @@
         <label asp-for="Username"></label>
         <input asp-for="Username" />
         <span asp-validation-for="Username"></span>
+        <p></p>
 
         <label asp-for="Password"></label>
         <input asp-for="Password" />
         <span asp-validation-for="Password"></span>
+        <p></p>
+
     </div>
     <button type="submit">登入</button>
+    <p></p>
     <div asp-validation-summary="All"></div>
 </form>
+<a href="@Url.Action(action: "Register", controller: "Account")">註冊</a>
