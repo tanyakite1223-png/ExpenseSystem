@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ExpenseSystem.Data;
+using Microsoft.AspNetCore.Identity;
 using Scalar.AspNetCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ExpenseDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Login/Index";
     options.AccessDeniedPath = "/Expenses/Index";
@@ -40,6 +44,36 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    // 在這裡建立角色和使用者
+    if (!await roleManager.RoleExistsAsync("Manager"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Manager"));
+    }
+
+    if (!await roleManager.RoleExistsAsync("Employee"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Employee"));
+    }
+
+    if (await userManager.FindByNameAsync("admin") == null)
+    {
+        var admin = new IdentityUser { UserName = "admin", Email = "admin@example.com" };
+        await userManager.CreateAsync(admin, "@Admin123");
+        await userManager.AddToRoleAsync(admin, "Manager");
+    }
+
+    if (await userManager.FindByNameAsync("Amber") == null)
+    {
+        var amber = new IdentityUser { UserName = "Amber", Email = "amber@example.com" };
+        await userManager.CreateAsync(amber, "@Amber123");
+        await userManager.AddToRoleAsync(amber, "Employee");
+    }
+}
 
 app.UseHttpsRedirection();
 
