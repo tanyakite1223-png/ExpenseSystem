@@ -1,0 +1,29 @@
+@using ExpenseSystem.Models
+@model RegisterViewModel
+
+<h2>註冊</h2>
+<form asp-action="Register" method="Post">
+    <div>
+        <label asp-for="Username"></label>
+        <input asp-for="Username" />
+        <span asp-validation-for="Username"></span>
+        <p></p>
+
+        <label asp-for="Email"></label>
+        <input asp-for="Email" />
+        <span asp-validation-for="Email"></span>
+        <p></p>
+
+        <label asp-for="Password"></label>
+        <input asp-for="Password" />
+        <span asp-validation-for="Password"></span>
+        <p></p>
+
+        <label asp-for="ConfirmPassword"></label>
+        <input asp-for="ConfirmPassword" />
+        <span asp-validation-for="ConfirmPassword"></span>
+        <p></p>
+    </div>
+    <div asp-validation-summary="ModelOnly"></div>
+    <button type="submit">註冊</button>
+</form>
