@@ -1,7 +1,6 @@
 @using ExpenseSystem.Models
 @model List<Expense>
 
-
 <h2>報銷列表</h2>
 <a asp-action="Create">新增</a>
 <a asp-controller="Login" asp-action="Logout">登出</a>
@@ -13,6 +12,8 @@
             <th>金額：</th>
             <th>日期：</th>
             <th>說明：</th>
+            <th>狀態</th>
+            <th>拒絕原因</th>
         </tr>
     </thead>
     <tbody>
@@ -24,14 +25,16 @@
                 <td>@item.Amount</td>
                 <td>@item.ExpenseDate</td>
                 <td>@item.Description</td>
+                <td>@EnumExtensions.GetDisplayName(@item.Status)</td>
+                <td>@item.RejectionReason</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.ExpenseId">修改</a>
 
-                    @if (User.IsInRole("Manager"))
+                    @if (User.IsInRole(role: "Manager"))
                     {
                         <a asp-action="Delete" asp-route-id="@item.ExpenseId">刪除</a>
                     }
-                    
+
                 </td>
             </tr>
 
