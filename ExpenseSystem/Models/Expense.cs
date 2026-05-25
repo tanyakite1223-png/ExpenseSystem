@@ -13,7 +13,24 @@ namespace ExpenseSystem.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
         public DateTime ExpenseDate { get; set; }
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
+        public string? RejectionReason { get; set; }
+        public ExpenseStatus Status { get; set; }
+
+        public bool IsDeleted { get; set; }
+
+    }
+
+    public enum ExpenseStatus
+    {
+        [Display(Name = "草稿")]
+        Draft,
+        [Display(Name = "已提交")]
+        Submitted,
+        [Display(Name = "已核准")]
+        Approved,
+        [Display(Name = "已拒絕")]
+        Rejected
     }
 }

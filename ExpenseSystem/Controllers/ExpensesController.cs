@@ -2,6 +2,9 @@ using ExpenseSystem.Data;
 using Microsoft.AspNetCore.Mvc;
 using ExpenseSystem.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+
 
 namespace ExpenseSystem.Controllers
 {
@@ -18,7 +21,7 @@ namespace ExpenseSystem.Controllers
 
         public IActionResult Index()
         {
-            var expenses = _context.Expenses.ToList();
+            var expenses = _context.Expenses.Where(e => e.IsDeleted == false).ToList();
             return View(expenses);
         }
 
@@ -52,19 +55,55 @@ namespace ExpenseSystem.Controllers
                 return NotFound();
             }
 
+            if (User.IsInRole(role: "Manager"))
+            {
+                ExpenseStatus statusApproved = ExpenseStatus.Approved;
+                ExpenseStatus statusRejected = ExpenseStatus.Rejected;
+
+                string approved = statusApproved.ToString();
+                string rejected = statusRejected.ToString();
+
+                List<SelectListItem> items = new List<SelectListItem>();
+                items.Add(new SelectListItem { Text = approved, Value = approved });
+                items.Add(new SelectListItem { Text = rejected, Value = rejected });
+
+                ViewBag.selectItem = items;
+            }
+
             return View(expense);
         }
 
         [HttpPost]
         public IActionResult Edit(Expense expense)
         {
+
+            if (expense.Status == ExpenseStatus.Rejected && string.IsNullOrWhiteSpace(expense.RejectionReason))
+            {
+                ModelState.AddModelError("RejectionReason", "請輸入拒絕原因");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Expenses.Update(expense);
                 _context.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
+            if (User.IsInRole(role: "Manager"))
+            {
+                ExpenseStatus statusApproved = ExpenseStatus.Approved;
+                ExpenseStatus statusRejected = ExpenseStatus.Rejected;
+
+                string approved = statusApproved.ToString();
+                string rejected = statusRejected.ToString();
+
+                List<SelectListItem> items = new List<SelectListItem>();
+                items.Add(new SelectListItem { Text = approved, Value = approved });
+                items.Add(new SelectListItem { Text = rejected, Value = rejected });
+
+                ViewBag.selectItem = items;
+            }
             return View(expense);
 
         }
@@ -75,6 +114,7 @@ namespace ExpenseSystem.Controllers
         public IActionResult Delete(int id)
         {
             var expense = _context.Expenses.Find(id);
+
 
             if (expense == null)
             {
@@ -90,7 +130,8 @@ namespace ExpenseSystem.Controllers
         public IActionResult DeleteConfirmed(int id)
         {
             var expense = _context.Expenses.Find(id);
-            _context.Expenses.Remove(expense);
+
+            expense.IsDeleted = true;
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
