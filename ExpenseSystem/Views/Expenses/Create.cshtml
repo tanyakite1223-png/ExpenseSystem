@@ -1,6 +1,7 @@
 @using ExpenseSystem.Models
 @model Expense
 
+
 <h2>新增單據</h2>
 <form asp-action="Create" method="post">
     <div>
@@ -18,11 +19,13 @@
         <input asp-for="ExpenseDate" />
         <span asp-validation-for="ExpenseDate"></span>
         <p />
-        
+
         <label asp-for="Description"></label>
         <input asp-for="Description" />
         <span asp-validation-for="Description"></span>
         <p />
+
+        <input asp-for="Status" value="0" type="hidden" />
     </div>
     <button type="submit">新增</button>
 </form>

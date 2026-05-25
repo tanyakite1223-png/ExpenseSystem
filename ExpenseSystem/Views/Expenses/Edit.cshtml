@@ -1,31 +1,93 @@
+@using System.Data.SqlTypes
 @using ExpenseSystem.Models
 @model Expense
 
 <h2>修改單據</h2>
 <form asp-action="Edit" method="post">
     <div>
-        <input asp-for="ExpenseId" type="hidden" />
+        @if (User.IsInRole(role: "Manager"))
+        {
+            <input asp-for="ExpenseId" type="hidden" />
 
-        <label asp-for="Title"></label>
-        <input asp-for="Title" />
-        <span asp-validation-for="Title"></span>
-        <p />
+            <label asp-for="Title"></label>
+            <input asp-for="Title" readonly />
+            <p />
 
-        <label asp-for="Amount"></label>
-        <input asp-for="Amount" />
-        <span asp-validation-for="Amount"></span>
-        <p />
+            <label asp-for="Amount"></label>
+            <input asp-for="Amount" readonly />
+            <p />
 
-        <label asp-for="ExpenseDate"></label>
-        <input asp-for="ExpenseDate" />
-        <span asp-validation-for="ExpenseDate"></span>
-        <p />
-        
-        <label asp-for="Description"></label>
-        <input asp-for="Description" />
-        <span asp-validation-for="Description"></span>
-        <p />
+            <label asp-for="ExpenseDate"></label>
+            <input asp-for="ExpenseDate" readonly />
+            <p />
+
+            <label asp-for="Description"></label>
+            <input asp-for="Description" readonly />
+            <p />
+
+            <select asp-for="Status" asp-items="@ViewBag.selectItem" id="statusSelect">
+            </select>
+            <p />
+
+            <div id="RejectionDiv">
+                <label asp-for="RejectionReason"></label>
+                <input asp-for="RejectionReason" id="RejectionReason" />
+                <span asp-validation-for="RejectionReason"> </span>
+                <p></p>
+            </div>
+            <div asp-validation-summary="ModelOnly"></div>
+        }
+        @if (User.IsInRole(role: "Employee"))
+        {
+
+            <input asp-for="ExpenseId" type="hidden" />
+
+            <label asp-for="Title"></label>
+            <input asp-for="Title" />
+            <span asp-validation-for="Title"></span>
+            <p />
+
+            <label asp-for="Amount"></label>
+            <input asp-for="Amount" />
+            <span asp-validation-for="Amount"></span>
+            <p />
+
+            <label asp-for="ExpenseDate"></label>
+            <input asp-for="ExpenseDate" />
+            <span asp-validation-for="ExpenseDate"></span>
+            <p />
+
+            <label asp-for="Description"></label>
+            <input asp-for="Description" />
+            <span asp-validation-for="Description"></span>
+
+            <input asp-for="Status" type="hidden" />
+            <p />
+        }
     </div>
-    <button type="submit">修改</button>
+    <button type="submit">修改</button> <button asp-action="Index">取消</button>
 
 </form>
+
+<script>
+    let statusSelect = document.getElementById('statusSelect');
+    const RejectionDiv = document.getElementById('RejectionDiv');
+    const RejectionInput = document.getElementById('RejectionReason');
+
+    function toggleRejectionDiv() {
+        if (statusSelect.value === 'Rejected') {
+            RejectionDiv.style.display = 'block';
+            RejectionInput.disabled = false;
+        }
+        else {
+            RejectionDiv.style.display = 'none';
+            RejectionInput.disabled = true;
+        }
+    }
+    // 下拉改變時
+    statusSelect.addEventListener('change', toggleRejectionDiv);
+
+    // 頁面載入時也執行一次
+    toggleRejectionDiv();
+</script>
+ 
