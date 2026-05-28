@@ -1,43 +1,67 @@
 @using ExpenseSystem.Models
+@using Microsoft.AspNetCore.Identity
 @model List<Expense>
 
 <h2>報銷列表</h2>
 <a asp-action="Create">新增</a>
 <a asp-controller="Login" asp-action="Logout">登出</a>
-<table class="table">
+
+<table style="border: 1px solid #cccccc; padding: 8px; border-collapse: collapse; width: 100%;">
     <thead>
-        <tr>
-            <th>Id</th>
-            <th>項目：</th>
-            <th>金額：</th>
-            <th>日期：</th>
-            <th>說明：</th>
-            <th>狀態</th>
-            <th>拒絕原因</th>
+        <tr style="background-color: #f2f2f2;">
+            <th style="width: 60px; border: 1px solid #cccccc; padding: 10px; text-align: center;">編號</th>
+            <th style="width: 140px; border: 1px solid #cccccc; padding: 10px; text-align: center;">項目</th>
+            <th style="width: 100px; border: 1px solid #cccccc; padding: 10px; text-align: center;">金額</th>
+            <th style="width: 200px; border: 1px solid #cccccc; padding: 10px; text-align: center;">日期</th>
+            <th style="width: 250px; border: 1px solid #cccccc; padding: 10px; text-align: center;">說明</th>
+            <th style="width: 100px; border: 1px solid #cccccc; padding: 10px; text-align: center;">狀態</th>
+            <th style="width: 250px; border: 1px solid #cccccc; padding: 10px; text-align: center;">功能</th>
+            <th style="width: 300px; border: 1px solid #cccccc; padding: 10px; text-align: center;">拒絕原因</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.ExpenseId</td>
-                <td>@item.Title</td>
-                <td>@item.Amount</td>
-                <td>@item.ExpenseDate</td>
-                <td>@item.Description</td>
-                <td>@EnumExtensions.GetDisplayName(@item.Status)</td>
-                <td>@item.RejectionReason</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.ExpenseId">修改</a>
-
-                    @if (User.IsInRole(role: "Manager"))
+                <td style="border: 1px solid #cccccc; padding: 10px;">@item.ExpenseId</td>
+                <td style="border: 1px solid #cccccc; padding: 10px;">@item.Title</td>
+                <td style="border: 1px solid #cccccc; padding: 10px;">@item.Amount</td>
+                <td style="border: 1px solid #cccccc; padding: 10px;">@item.ExpenseDate</td>
+                <td style="border: 1px solid #cccccc; padding: 10px;">@item.Description</td>
+                <td style="border: 1px solid #cccccc; padding: 10px;">@EnumExtensions.GetDisplayName(@item.Status)</td>
+                <td style="border: 1px solid #cccccc; padding: 10px;">
+                    @if (!User.IsInRole("Manager"))
                     {
-                        <a asp-action="Delete" asp-route-id="@item.ExpenseId">刪除</a>
+                        <form method="post" asp-action="Submitted" asp-route-id="@item.ExpenseId" style="display:inline;">
+                            <button class="SubmitButton" data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)"
+                                    data-id="@item.ExpenseId" onclick="return confirm('確定要送審？')">送審</button>
+                        </form>
                     }
 
-                </td>
-            </tr>
+                    <form method="get" asp-action="Edit" asp-route-id="@item.ExpenseId" style="display:inline;">
+                        <button class="@(User.IsInRole("Manager") ? "" : "EditBtn")"
+                                data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)">修改</button>
+                    </form>
 
+                    @if (User.IsInRole("Manager"))
+                    {
+                        <form method="get" asp-action="Delete" asp-route-id="@item.ExpenseId" style="display:inline;">
+                            <button>刪除</button>
+                        </form>
+                    }
+                </td>
+                <td style="border: 1px solid #cccccc; padding: 10px;">@item.RejectionReason</td>
+            </tr>
         }
     </tbody>
 </table>
+
+<script>
+    const buttons = document.querySelectorAll(".SubmitButton, .EditBtn");
+
+    buttons.forEach(function (btn) {
+        if (btn.dataset.statusbtn === "審核中" || btn.dataset.statusbtn === "已核准" || btn.dataset.statusbtn === "已拒絕") {
+            btn.style.display = 'none';
+        }
+    });
+</script>
