@@ -26,7 +26,7 @@ namespace ExpenseSystem.Models
     {
         [Display(Name = "草稿")]
         Draft,
-        [Display(Name = "已提交")]
+        [Display(Name = "審核中")]
         Submitted,
         [Display(Name = "已核准")]
         Approved,
@@ -34,3 +34,4 @@ namespace ExpenseSystem.Models
         Rejected
     }
 }
+

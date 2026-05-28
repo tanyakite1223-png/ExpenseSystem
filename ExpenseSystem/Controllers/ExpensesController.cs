@@ -21,8 +21,17 @@ namespace ExpenseSystem.Controllers
 
         public IActionResult Index()
         {
-            var expenses = _context.Expenses.Where(e => e.IsDeleted == false).ToList();
-            return View(expenses);
+            var expenseList = new List<Expense>();
+
+            if (User.IsInRole(role: "Manager"))
+            {
+                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft).ToList();
+            }
+            else
+            {
+                expenseList = _context.Expenses.Where(e => e.IsDeleted == false).ToList();
+            }
+            return View(expenseList);
         }
 
         [HttpGet]
@@ -132,6 +141,21 @@ namespace ExpenseSystem.Controllers
             var expense = _context.Expenses.Find(id);
 
             expense.IsDeleted = true;
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult Submitted(int id)
+        {
+            var expense = _context.Expenses.Find(id);
+
+            if (expense == null)
+            {
+                return NotFound();
+            }
+            expense.Status = ExpenseStatus.Submitted;
+            _context.Expenses.Update(expense);
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
