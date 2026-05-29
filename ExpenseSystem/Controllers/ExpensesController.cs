@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ExpenseSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
-
-
+using System.Security.Claims;
 
 namespace ExpenseSystem.Controllers
 {
@@ -29,9 +28,11 @@ namespace ExpenseSystem.Controllers
             }
             else
             {
-                expenseList = _context.Expenses.Where(e => e.IsDeleted == false).ToList();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).ToList();
             }
             return View(expenseList);
+
         }
 
         [HttpGet]
@@ -41,10 +42,11 @@ namespace ExpenseSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Expense expense)
+        public async Task<IActionResult> Create(Expense expense)
         {
             if (ModelState.IsValid)
             {
+                expense.ApplicantId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 _context.Expenses.Add(expense);
                 _context.SaveChanges();
                 return RedirectToAction("Index");
