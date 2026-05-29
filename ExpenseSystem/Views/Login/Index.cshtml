@@ -1,22 +1,206 @@
 @using ExpenseSystem.Models
 @model LoginViewModel
 
-<h2>登入</h2>
-<form asp-action="Index" method="Post">
-    <div>
-        <label asp-for="Username"></label>
-        <input asp-for="Username" />
-        <span asp-validation-for="Username"></span>
-        <p></p>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
-        <label asp-for="Password"></label>
-        <input asp-for="Password" />
-        <span asp-validation-for="Password"></span>
-        <p></p>
+<style>
+    /* 外層包裹容器 */
+    .login-wrapper {
+        font-family: 'Noto Sans TC', sans-serif;
+        max-width: 400px;
+        width: 100%;
+        margin: 60px auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-    </div>
-    <button type="submit">登入</button>
-    <p></p>
-    <div asp-validation-summary="All"></div>
-</form>
-<a href="@Url.Action(action: "Register", controller: "Account")">註冊</a>
+    /* 標題樣式 */
+    .login-wrapper h2 {
+        font-size: 26px;
+        color: #2c3e50;
+        margin-top: 0;
+        margin-bottom: 25px;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    /* 表單白底卡片本體 */
+    .login-wrapper form {
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 讓表單內元件直向排列 */
+    .login-wrapper form>div {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 欄位標籤 */
+    .login-wrapper label {
+        font-size: 14px;
+        color: #4f5d75;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    /* 輸入框樣式 */
+    .login-wrapper input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #cccccc;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #333333;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .login-wrapper input:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+    }
+
+    /* ⭐ 密碼外殼容器（切換明碼眼睛專用） */
+    .password-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* 讓密碼輸入框右側留白，避免文字被眼睛符號擋住 */
+    .password-container input {
+        padding-right: 40px;
+    }
+
+    /* 內嵌眼睛按鈕樣式 */
+    .toggle-eye {
+        position: absolute;
+        right: 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        color: #7f8c8d;
+        padding: 0;
+    }
+
+    .toggle-eye:hover {
+        color: #3498db;
+    }
+
+    /* 欄位錯誤訊息 */
+    .login-wrapper span {
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    /* 將標準的 p 標籤定義為 20px 高度的欄位間距 */
+    .login-wrapper form p {
+        margin: 0;
+        padding: 0;
+        height: 20px;
+    }
+
+    /* 登入按鈕樣式 */
+    .login-wrapper button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+    }
+
+    .login-wrapper button[type="submit"]:hover {
+        background-color: #2980b9;
+    }
+
+    .login-wrapper button[type="submit"]:active {
+        transform: scale(0.98);
+    }
+
+    /* 錯誤訊息總結區 */
+    .login-wrapper .validation-summary-errors {
+        background-color: #fdf2f2;
+        border: 1px solid #fde8e8;
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 15px;
+        color: #c0392b;
+        font-size: 13px;
+    }
+
+    /* 將註冊連結內嵌於卡片底部，並加上細緻的分隔線 */
+    .login-wrapper .card-footer-link {
+        display: block;
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px dashed #e2e8f0;
+        color: #7f8c8d;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .login-wrapper .card-footer-link:hover {
+        color: #3498db;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="login-wrapper">
+    <h2>登入</h2>
+    <form asp-action="Index" method="Post">
+        <div>
+            <label asp-for="Username"></label>
+            <input asp-for="Username" />
+            <span asp-validation-for="Username"></span>
+            <p></p>
+
+            <label asp-for="Password"></label>
+            <div class="password-container">
+                <input asp-for="Password" type="password" id="loginPwd" />
+                <button type="button" class="toggle-eye" onclick="togglePwd('loginPwd', this)">👁️</button>
+            </div>
+            <span asp-validation-for="Password"></span>
+            <p></p>
+        </div>
+        <button type="submit">登入</button>
+        <p></p>
+        <div asp-validation-summary="All"></div>
+
+        <a class="card-footer-link" href="@Url.Action(action: "Register", controller: "Account")">註冊新帳號</a>
+    </form>
+</div>
+
+<script>
+    function togglePwd(id, btn) {
+        const input = document.getElementById(id);
+        if (input.type === "password") {
+            input.type = "text";
+            btn.textContent = "🙈"; /* 切換為遮眼 */
+        } else {
+            input.type = "password";
+            btn.textContent = "👁️"; /* 切換回明眼 */
+        }
+    }
+</script>
