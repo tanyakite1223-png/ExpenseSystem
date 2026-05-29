@@ -18,6 +18,8 @@ namespace ExpenseSystem.Models
         public string? RejectionReason { get; set; }
         public ExpenseStatus Status { get; set; }
 
+        public string? ApplicantId { get; set; }
+
         public bool IsDeleted { get; set; }
 
     }

@@ -2,6 +2,169 @@
 @using ExpenseSystem.Models
 @model Expense
 
+<!-- 引入 Google 字型提升質感 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+    /* 全域基礎背景與字型 */
+    body {
+        font-family: 'Noto Sans TC', sans-serif;
+        background-color: #f8f9fa;
+        color: #333333;
+        padding: 40px 20px;
+        margin: 0;
+    }
+
+    /* 標題置中 */
+    h2 {
+        font-size: 26px;
+        color: #2c3e50;
+        text-align: center;
+        font-weight: 700;
+        margin-bottom: 25px;
+    }
+
+    /* 表單白底卡片 */
+    form {
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        max-width: 500px;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    /* 讓表單內元件直向排列 */
+    form>div {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 欄位標籤樣式 */
+    label {
+        font-size: 14px;
+        color: #4f5d75;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    /* 一般輸入框 與 下拉選單 樣式優化 */
+    input,
+    select {
+        display: block;
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #cccccc;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #333333;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        box-sizing: border-box;
+        background-color: #ffffff;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+    }
+
+    /* 唯讀（readonly）輸入框美化：淡淡的灰色背景 */
+    input[readonly] {
+        border: 1px solid #e2e8f0;
+        background-color: #f8f9fa;
+        color: #718096;
+        cursor: not-allowed;
+    }
+
+    /* 欄位錯誤訊息 */
+    span {
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    /* 標準的 p 標籤定義為 20px 高度的欄位間距 */
+    form p {
+        margin: 0;
+        padding: 0;
+        height: 20px;
+    }
+
+    /* 駁回理由區塊的額外留白美化 */
+    #RejectionDiv {
+        margin-top: 5px;
+    }
+
+    /* 按鈕包裹容器：讓「修改」與「取消」按鈕左右並排 */
+    .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    /* 按鈕基礎樣式 */
+    .button-group button {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+        box-sizing: border-box;
+    }
+
+    /* 修改確認按鈕：品牌藍 */
+    .button-group button[type="submit"] {
+        background-color: #3498db;
+        color: white;
+        box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+    }
+
+    .button-group button[type="submit"]:hover {
+        background-color: #2980b9;
+    }
+
+    /* 取消返回按鈕：中性灰 */
+    .button-group button[asp-action="Index"] {
+        background-color: #95a5a6;
+        color: white;
+        box-shadow: 0 2px 4px rgba(149, 165, 166, 0.2);
+        text-align: center;
+    }
+
+    .button-group button[asp-action="Index"]:hover {
+        background-color: #7f8c8d;
+    }
+
+    .button-group button:active {
+        transform: scale(0.98);
+    }
+
+    /* 錯誤訊息總結區 */
+    .validation-summary-errors {
+        background-color: #fdf2f2;
+        border: 1px solid #fde8e8;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 20px;
+        color: #c0392b;
+        font-size: 13px;
+    }
+
+    .validation-summary-errors ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+</style>
+
 <h2>修改單據</h2>
 <form asp-action="Edit" method="post">
     <div>
@@ -11,62 +174,67 @@
 
             <label asp-for="Title"></label>
             <input asp-for="Title" readonly />
-            <p />
+            <p></p>
 
             <label asp-for="Amount"></label>
             <input asp-for="Amount" readonly />
-            <p />
+            <p></p>
 
             <label asp-for="ExpenseDate"></label>
             <input asp-for="ExpenseDate" readonly />
-            <p />
+            <p></p>
 
             <label asp-for="Description"></label>
             <input asp-for="Description" readonly />
-            <p />
+            <p></p>
 
+            <label asp-for="Status">審核狀態</label>
             <select asp-for="Status" asp-items="@ViewBag.selectItem" id="statusSelect">
             </select>
-            <p />
+            <p></p>
 
             <div id="RejectionDiv">
                 <label asp-for="RejectionReason"></label>
                 <input asp-for="RejectionReason" id="RejectionReason" />
-                <span asp-validation-for="RejectionReason"> </span>
+                <span asp-validation-for="RejectionReason"></span>
                 <p></p>
             </div>
             <div asp-validation-summary="ModelOnly"></div>
         }
+
         @if (User.IsInRole(role: "Employee"))
         {
-
             <input asp-for="ExpenseId" type="hidden" />
 
             <label asp-for="Title"></label>
             <input asp-for="Title" />
             <span asp-validation-for="Title"></span>
-            <p />
+            <p></p>
 
             <label asp-for="Amount"></label>
             <input asp-for="Amount" />
             <span asp-validation-for="Amount"></span>
-            <p />
+            <p></p>
 
             <label asp-for="ExpenseDate"></label>
-            <input asp-for="ExpenseDate" />
+            <input asp-for="ExpenseDate" type="date" /> <!-- 加上 type="date" 喚起日期選擇器 -->
             <span asp-validation-for="ExpenseDate"></span>
-            <p />
+            <p></p>
 
             <label asp-for="Description"></label>
             <input asp-for="Description" />
             <span asp-validation-for="Description"></span>
 
             <input asp-for="Status" type="hidden" />
-            <p />
+            <p></p>
         }
     </div>
-    <button type="submit">修改</button> <button asp-action="Index">取消</button>
 
+    <!-- 按鈕並排組 -->
+    <div class="button-group">
+        <button type="submit">修改</button>
+        <button asp-action="Index">取消</button>
+    </div>
 </form>
 
 <script>
@@ -75,6 +243,9 @@
     const RejectionInput = document.getElementById('RejectionReason');
 
     function toggleRejectionDiv() {
+        // 安全檢查：若目前登入者非主管，畫面上沒有 statusSelect 則不執行
+        if (!statusSelect) return;
+
         if (statusSelect.value === 'Rejected') {
             RejectionDiv.style.display = 'block';
             RejectionInput.disabled = false;
@@ -84,10 +255,11 @@
             RejectionInput.disabled = true;
         }
     }
-    // 下拉改變時
-    statusSelect.addEventListener('change', toggleRejectionDiv);
 
-    // 頁面載入時也執行一次
-    toggleRejectionDiv();
+    if (statusSelect) {
+        // 下拉改變時
+        statusSelect.addEventListener('change', toggleRejectionDiv);
+        // 頁面載入時也執行一次
+        toggleRejectionDiv();
+    }
 </script>
- 

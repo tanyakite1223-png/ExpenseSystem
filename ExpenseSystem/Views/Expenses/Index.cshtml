@@ -2,59 +2,229 @@
 @using Microsoft.AspNetCore.Identity
 @model List<Expense>
 
-<h2>報銷列表</h2>
-<a asp-action="Create">新增</a>
-<a asp-controller="Login" asp-action="Logout">登出</a>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
-<table style="border: 1px solid #cccccc; padding: 8px; border-collapse: collapse; width: 100%;">
-    <thead>
-        <tr style="background-color: #f2f2f2;">
-            <th style="width: 60px; border: 1px solid #cccccc; padding: 10px; text-align: center;">編號</th>
-            <th style="width: 140px; border: 1px solid #cccccc; padding: 10px; text-align: center;">項目</th>
-            <th style="width: 100px; border: 1px solid #cccccc; padding: 10px; text-align: center;">金額</th>
-            <th style="width: 200px; border: 1px solid #cccccc; padding: 10px; text-align: center;">日期</th>
-            <th style="width: 250px; border: 1px solid #cccccc; padding: 10px; text-align: center;">說明</th>
-            <th style="width: 100px; border: 1px solid #cccccc; padding: 10px; text-align: center;">狀態</th>
-            <th style="width: 250px; border: 1px solid #cccccc; padding: 10px; text-align: center;">功能</th>
-            <th style="width: 300px; border: 1px solid #cccccc; padding: 10px; text-align: center;">拒絕原因</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<style>
+    /* 全域字型與背景基礎設定 */
+    body {
+        font-family: 'Noto Sans TC', sans-serif;
+        background-color: #f8f9fa;
+        color: #333333;
+        padding: 20px;
+    }
+
+    /* 頂部標題與控制列 */
+    .header-container {
+        text-align: center;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .header-container h2 {
+        font-size: 28px;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto 15px auto;
+    }
+
+    /* 頂部超連結按鈕化 */
+    .btn-create,
+    .btn-logout {
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        font-size: 14px;
+    }
+
+    .btn-create {
+        background-color: #2ecc71;
+        color: white;
+        box-shadow: 0 2px 4px rgba(46, 204, 113, 0.2);
+    }
+
+    .btn-create:hover {
+        background-color: #27ae60;
+        transform: translateY(-1px);
+    }
+
+    .btn-logout {
+        background-color: #e74c3c;
+        color: white;
+        box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+    }
+
+    .btn-logout:hover {
+        background-color: #c0392b;
+        transform: translateY(-1px);
+    }
+
+    /* 表格容器與卡片陰影效果 */
+    .table-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        /* 確保圓角效果順暢 */
+    }
+
+    /* 表格主體 */
+    .expense-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    /* 表頭設計 */
+    .expense-table thead tr {
+        background-color: #f1f3f5;
+        color: #495057;
+    }
+
+    .expense-table th {
+        padding: 14px 10px;
+        font-weight: 700;
+        text-align: center;
+        font-size: 15px;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    /* 表格內容與動態懸停效果 */
+    .expense-table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #eeeeee;
+        font-size: 14px;
+        color: #4f5d75;
+        vertical-align: middle;
+    }
+
+    .expense-table tbody tr:hover {
+        background-color: #f8fafd;
+        /* 滑鼠滑過時的淡藍色 */
+    }
+
+    /* 內嵌 Form 的排列控制 */
+    .expense-table td form {
+        display: inline-block;
+        margin-right: 4px;
+    }
+
+    /* 表格功能按鈕優化 */
+    .expense-table button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 13px;
+        transition: background-color 0.2s ease;
+    }
+
+    .SubmitButton {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .SubmitButton:hover {
+        background-color: #2980b9;
+    }
+
+    .EditBtn,
+    .expense-table form[method="get"] button:not(.EditBtn) {
+        background-color: #f1c40f;
+        color: #333333;
+    }
+
+    .EditBtn:hover {
+        background-color: #f39c12;
+    }
+
+    /* 刪除按鈕 */
+    .expense-table form[action="Delete"] button,
+    .expense-table td form:last-of-type button:not(.SubmitButton):not(.EditBtn) {
+        background-color: #95a5a6;
+        color: white;
+    }
+
+    .expense-table td form:last-of-type button:not(.SubmitButton):not(.EditBtn):hover {
+        background-color: #7f8c8d;
+    }
+</style>
+
+<div class="header-container">
+    <h2>報銷列表</h2>
+</div>
+
+<div class="action-bar">
+    <a asp-action="Create" class="btn-create">＋ 新增報銷</a>
+    <a asp-controller="Login" asp-action="Logout" class="btn-logout">登出系統</a>
+</div>
+
+<div class="table-container">
+    <table class="expense-table">
+        <thead>
             <tr>
-                <td style="border: 1px solid #cccccc; padding: 10px;">@item.ExpenseId</td>
-                <td style="border: 1px solid #cccccc; padding: 10px;">@item.Title</td>
-                <td style="border: 1px solid #cccccc; padding: 10px;">@item.Amount</td>
-                <td style="border: 1px solid #cccccc; padding: 10px;">@item.ExpenseDate</td>
-                <td style="border: 1px solid #cccccc; padding: 10px;">@item.Description</td>
-                <td style="border: 1px solid #cccccc; padding: 10px;">@EnumExtensions.GetDisplayName(@item.Status)</td>
-                <td style="border: 1px solid #cccccc; padding: 10px;">
-                    @if (!User.IsInRole("Manager"))
-                    {
-                        <form method="post" asp-action="Submitted" asp-route-id="@item.ExpenseId" style="display:inline;">
-                            <button class="SubmitButton" data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)"
-                                    data-id="@item.ExpenseId" onclick="return confirm('確定要送審？')">送審</button>
-                        </form>
-                    }
-
-                    <form method="get" asp-action="Edit" asp-route-id="@item.ExpenseId" style="display:inline;">
-                        <button class="@(User.IsInRole("Manager") ? "" : "EditBtn")"
-                                data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)">修改</button>
-                    </form>
-
-                    @if (User.IsInRole("Manager"))
-                    {
-                        <form method="get" asp-action="Delete" asp-route-id="@item.ExpenseId" style="display:inline;">
-                            <button>刪除</button>
-                        </form>
-                    }
-                </td>
-                <td style="border: 1px solid #cccccc; padding: 10px;">@item.RejectionReason</td>
+                <th style="width: 60px;">編號</th>
+                <th style="width: 140px;">項目</th>
+                <th style="width: 100px;">金額</th>
+                <th style="width: 200px;">日期</th>
+                <th style="width: 250px;">說明</th>
+                <th style="width: 100px;">狀態</th>
+                <th style="width: 250px;">功能</th>
+                <th style="width: 300px;">拒絕原因</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td style="text-align: center;">@item.ExpenseId</td>
+                    <td><strong>@item.Title</strong></td>
+                    <td style="text-align: right; color: #e67e22; font-weight: 500;">$@item.Amount</td>
+                    <td style="text-align: center;">@item.ExpenseDate</td>
+                    <td>@item.Description</td>
+                    <td style="text-align: center;">@EnumExtensions.GetDisplayName(@item.Status)</td>
+                    <td style="text-align: center;">
+                        @if (!User.IsInRole("Manager"))
+                        {
+                            <form method="post" asp-action="Submitted" asp-route-id="@item.ExpenseId">
+                                <button type="submit" class="SubmitButton"
+                                        data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)" data-id="@item.ExpenseId"
+                                        onclick="return confirm('確定要送審？')">送審</button>
+                            </form>
+                        }
+
+                        <form method="get" asp-action="Edit" asp-route-id="@item.ExpenseId">
+                            <button type="submit" class="@(User.IsInRole("Manager") ? "" : "EditBtn")"
+                                    data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)">修改</button>
+                        </form>
+
+                        @if (User.IsInRole("Manager"))
+                        {
+                            <form method="get" asp-action="Delete" asp-route-id="@item.ExpenseId">
+                                <button type="submit">刪除</button>
+                            </form>
+                        }
+                    </td>
+                    <td style="color: #c0392b;">@item.RejectionReason</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 <script>
     const buttons = document.querySelectorAll(".SubmitButton, .EditBtn");
