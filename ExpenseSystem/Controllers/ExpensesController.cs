@@ -4,6 +4,7 @@ using ExpenseSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace ExpenseSystem.Controllers
 {
@@ -11,10 +12,12 @@ namespace ExpenseSystem.Controllers
     public class ExpensesController : Controller
     {
         private readonly ExpenseDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public ExpensesController(ExpenseDbContext context)
+        public ExpensesController(ExpenseDbContext context, UserManager<IdentityUser> usermanager)
         {
             _context = context;
+            _userManager = usermanager;
         }
 
 
@@ -122,15 +125,18 @@ namespace ExpenseSystem.Controllers
 
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var expense = _context.Expenses.Find(id);
-
-
             if (expense == null)
             {
                 return NotFound();
             }
+
+            var userName = (await _userManager.FindByIdAsync(expense.ApplicantId))?.UserName;
+
+            ViewBag.username = userName;
+
 
             return View(expense);
         }
