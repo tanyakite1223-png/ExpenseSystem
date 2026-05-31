@@ -1,6 +1,7 @@
 @using ExpenseSystem.Models
 @model Expense
 
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -129,6 +130,10 @@
 <form asp-action="Delete" method="Post">
     <div>
         <input asp-for="ExpenseId" type="hidden">
+
+        <label asp-for="ApplicantId">申請人</label>
+        <input type="text" name="ApplicantName" value="@ViewBag.username" readonly>
+
 
         <label asp-for="Title"></label>
         <input asp-for="Title" readonly>
