@@ -32,8 +32,12 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         max-width: 500px;
         margin: 0 auto;
-        /* 卡片水平置中 */
         box-sizing: border-box;
+    }
+
+    form>div {
+        display: flex;
+        flex-direction: column;
     }
 
     /* 欄位標籤樣式 */
@@ -72,39 +76,57 @@
         margin-top: 5px;
     }
 
-    /* ⭐ 核心修正：將標準的 p 標籤定義為 24px 高度的乾淨間距區塊 */
+    /* 欄位之間的呼吸間距 */
     form p {
         margin: 0;
         padding: 0;
         height: 24px;
-        /* 👈 這裡決定了每個輸入欄位之間的呼吸間距 */
     }
 
-    /* 新增按鈕樣式 */
-    button[type="submit"] {
-        display: block;
-        width: 100%;
+    /* 按鈕包裹容器：讓「新增」與「取消」按鈕左右並排 */
+    .button-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    /* 按鈕基礎樣式：移除原有的單一白字設定與個別獨立宣告，集中管理 */
+    .button-group button {
+        flex: 1;
         padding: 12px;
-        background-color: #2ecc71;
-        /* 綠色 */
-        color: white;
         border: none;
         border-radius: 6px;
         font-size: 16px;
         font-weight: 500;
         cursor: pointer;
         transition: background-color 0.2s ease, transform 0.1s ease;
-        box-shadow: 0 2px 4px rgba(46, 204, 113, 0.2);
-
-        margin-top: 15px;
-        /* 👈 這裡讓 input 與按鈕之間留出完美的舒適距離 */
+        box-sizing: border-box;
     }
 
-    button[type="submit"]:hover {
-        background-color: #27ae60;
+    /* 新增確認按鈕：品牌藍 + 白色字體 */
+    .button-group button[type="submit"] {
+        background-color: #2ecc71;
+        color: #ffffff;
+        box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
     }
 
-    button[type="submit"]:active {
+    .button-group button[type="submit"]:hover {
+        background-color: #2bbd68;
+    }
+
+    /* 取消返回按鈕：淺灰底 + 同色系深灰字（比底色深，不突兀且具辨識度） */
+    .btn-cancel {
+        background-color: #edf2f7;
+        color: #718096;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e2e8f0;
+        color: #4a5568;
+    }
+
+    .button-group button:active {
         transform: scale(0.98);
     }
 </style>
@@ -125,5 +147,10 @@
         <span asp-validation-for="Description"></span>
         <p></p> <input asp-for="Status" value="0" type="hidden" />
     </div>
-    <button type="submit">新增</button>
+    <!-- 按鈕並排組 -->
+    <div class="button-group">
+        <button type="submit">新增</button>
+        <button asp-action="Index" class="btn-cancel">取消</button>
+    </div>
+
 </form>
