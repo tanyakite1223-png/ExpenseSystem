@@ -169,7 +169,11 @@
 </div>
 
 <div class="action-bar">
-    <a asp-action="Create" class="btn-create">＋ 新增報銷</a>
+    @if (!User.IsInRole(role: "Manager"))
+    {
+        <a asp-action="Create" class="btn-create">＋ 新增報銷</a>
+    }
+
     <a asp-controller="Login" asp-action="Logout" class="btn-logout">登出系統</a>
 </div>
 
@@ -182,6 +186,10 @@
                 <th style="width: 100px;">金額</th>
                 <th style="width: 200px;">日期</th>
                 <th style="width: 250px;">說明</th>
+                @if (User.IsInRole(role: "Manager"))
+                {
+                    <th style="width: 150px;">申請人</th>
+                }
                 <th style="width: 100px;">狀態</th>
                 <th style="width: 250px;">功能</th>
                 <th style="width: 300px;">拒絕原因</th>
@@ -196,6 +204,10 @@
                     <td style="text-align: right; color: #e67e22; font-weight: 500;">$@item.Amount</td>
                     <td style="text-align: center;">@item.ExpenseDate</td>
                     <td>@item.Description</td>
+                    @if (User.IsInRole(role: "Manager"))
+                    {
+                        <td>@item.ApplicantId</td>
+                    }
                     <td style="text-align: center;">@EnumExtensions.GetDisplayName(@item.Status)</td>
                     <td style="text-align: center;">
                         @if (!User.IsInRole("Manager"))
@@ -232,6 +244,13 @@
     buttons.forEach(function (btn) {
         if (btn.dataset.statusbtn === "審核中" || btn.dataset.statusbtn === "已核准" || btn.dataset.statusbtn === "已拒絕") {
             btn.style.display = 'none';
+        }
+
+        if (btn.dataset.statusbtn.trim() === "退／補件" && btn.classList.contains("SubmitButton")) {
+            btn.style.display = 'none';
+        }
+        {
+
         }
     });
 </script>
