@@ -51,9 +51,11 @@
         margin-bottom: 8px;
     }
 
-    /* 一般輸入框 與 下拉選單 樣式優化 */
-    input,
-    select {
+    /* ⭐ 修正重點一：極度精準的輸入框與下拉選單樣式，確保預設文字為深色 */
+    form input[type="text"],
+    form input[type="date"],
+    form input:not([type]),
+    form select {
         display: block;
         width: 100%;
         padding: 10px 12px;
@@ -61,23 +63,25 @@
         border-radius: 6px;
         font-size: 14px;
         color: #333333;
+        /* 👈 確保是一般深色字 */
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
         box-sizing: border-box;
         background-color: #ffffff;
     }
 
-    input:focus,
-    select:focus {
+    form input:focus,
+    form select:focus {
         border-color: #3498db;
         outline: none;
         box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
     }
 
-    /* 唯讀（readonly）輸入框美化：淡淡的灰色背景 */
-    input[readonly] {
-        border: 1px solid #e2e8f0;
-        background-color: #f8f9fa;
-        color: #718096;
+    /* ⭐ 修正重點二：精準定義唯讀欄位，強制覆蓋任何可能的白字設定 */
+    form input[readonly] {
+        border: 1px solid #e2e8f0 !important;
+        background-color: #f8f9fa !important;
+        color: #718096 !important;
+        /* 👈 主管看到的唯讀欄位會是優雅的灰色字，絕對不會變白 */
         cursor: not-allowed;
     }
 
@@ -108,7 +112,7 @@
         margin-top: 15px;
     }
 
-    /* 按鈕基礎樣式 */
+    /* 按鈕基礎樣式：強制與輸入框文字脫鉤 */
     .button-group button {
         flex: 1;
         padding: 12px;
@@ -119,12 +123,13 @@
         cursor: pointer;
         transition: background-color 0.2s ease, transform 0.1s ease;
         box-sizing: border-box;
+        color: white !important;
+        /* 👈 只有按鈕內的字是白色 */
     }
 
     /* 修改確認按鈕：品牌藍 */
     .button-group button[type="submit"] {
         background-color: #3498db;
-        color: white;
         box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
     }
 
@@ -135,7 +140,6 @@
     /* 取消返回按鈕：中性灰 */
     .button-group button[asp-action="Index"] {
         background-color: #95a5a6;
-        color: white;
         box-shadow: 0 2px 4px rgba(149, 165, 166, 0.2);
         text-align: center;
     }
@@ -171,6 +175,8 @@
         @if (User.IsInRole(role: "Manager"))
         {
             <input asp-for="ExpenseId" type="hidden" />
+            <label asp-for="ApplicantId">申請人</label>
+            <input asp-for="ApplicantId" value="@ViewBag.username" readonly />
 
             <label asp-for="Title"></label>
             <input asp-for="Title" readonly />
@@ -205,6 +211,7 @@
         @if (User.IsInRole(role: "Employee"))
         {
             <input asp-for="ExpenseId" type="hidden" />
+            <input asp-for="ApplicantId" type="hidden" />
 
             <label asp-for="Title"></label>
             <input asp-for="Title" />
@@ -217,7 +224,7 @@
             <p></p>
 
             <label asp-for="ExpenseDate"></label>
-            <input asp-for="ExpenseDate" type="date" /> <!-- 加上 type="date" 喚起日期選擇器 -->
+            <input asp-for="ExpenseDate" type="date" />
             <span asp-validation-for="ExpenseDate"></span>
             <p></p>
 
@@ -243,7 +250,6 @@
     const RejectionInput = document.getElementById('RejectionReason');
 
     function toggleRejectionDiv() {
-        // 安全檢查：若目前登入者非主管，畫面上沒有 statusSelect 則不執行
         if (!statusSelect) return;
 
         if (statusSelect.value === 'Rejected') {
@@ -257,9 +263,7 @@
     }
 
     if (statusSelect) {
-        // 下拉改變時
         statusSelect.addEventListener('change', toggleRejectionDiv);
-        // 頁面載入時也執行一次
         toggleRejectionDiv();
     }
 </script>
