@@ -30,6 +30,8 @@ namespace ExpenseSystem.Models
         Draft,
         [Display(Name = "審核中")]
         Submitted,
+        [Display(Name = "退／補件")]
+        Returned,
         [Display(Name = "已核准")]
         Approved,
         [Display(Name = "已拒絕")]
