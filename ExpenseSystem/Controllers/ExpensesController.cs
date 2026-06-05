@@ -75,20 +75,7 @@ namespace ExpenseSystem.Controllers
 
             if (User.IsInRole(role: "Manager"))
             {
-                ExpenseStatus statusReturned = ExpenseStatus.Returned;
-                ExpenseStatus statusApproved = ExpenseStatus.Approved;
-                ExpenseStatus statusRejected = ExpenseStatus.Rejected;
-
-                string returned = EnumExtensions.GetDisplayName(statusReturned);
-                string approved = EnumExtensions.GetDisplayName(statusApproved);
-                string rejected = EnumExtensions.GetDisplayName(statusRejected);
-
-                List<SelectListItem> items = new List<SelectListItem>();
-                items.Add(new SelectListItem { Text = returned, Value = statusReturned.ToString() });
-                items.Add(new SelectListItem { Text = approved, Value = statusApproved.ToString() });
-                items.Add(new SelectListItem { Text = rejected, Value = statusRejected.ToString() });
-
-                ViewBag.selectItem = items;
+                ViewBag.selectItem = GetSelectListItems();
             }
 
             return View(expense);
@@ -114,10 +101,6 @@ namespace ExpenseSystem.Controllers
                     expense.Status = ExpenseStatus.Submitted;
                 }
 
-                if (User.IsInRole("Employee") && expense.Status == ExpenseStatus.Returned)
-                {
-                    expense.Status = ExpenseStatus.Submitted;
-                }
 
                 _context.Expenses.Update(expense);
                 _context.SaveChanges();
@@ -128,20 +111,7 @@ namespace ExpenseSystem.Controllers
 
             if (User.IsInRole(role: "Manager"))
             {
-                ExpenseStatus statusReturned = ExpenseStatus.Returned;
-                ExpenseStatus statusApproved = ExpenseStatus.Approved;
-                ExpenseStatus statusRejected = ExpenseStatus.Rejected;
-
-                string returned = EnumExtensions.GetDisplayName(statusReturned);
-                string approved = EnumExtensions.GetDisplayName(statusApproved);
-                string rejected = EnumExtensions.GetDisplayName(statusRejected);
-
-                List<SelectListItem> items = new List<SelectListItem>();
-                items.Add(new SelectListItem { Text = returned, Value = statusReturned.ToString() });
-                items.Add(new SelectListItem { Text = approved, Value = statusApproved.ToString() });
-                items.Add(new SelectListItem { Text = rejected, Value = statusRejected.ToString() });
-
-                ViewBag.selectItem = items;
+                ViewBag.selectItem = GetSelectListItems();
             }
 
             return View(expense);
@@ -198,6 +168,25 @@ namespace ExpenseSystem.Controllers
         {
             var user = (await _userManager.FindByNameAsync(name));
             return user?.Id;
+        }
+
+
+        private List<SelectListItem> GetSelectListItems()
+        {
+            ExpenseStatus statusReturned = ExpenseStatus.Returned;
+            ExpenseStatus statusApproved = ExpenseStatus.Approved;
+            ExpenseStatus statusRejected = ExpenseStatus.Rejected;
+
+            string returned = EnumExtensions.GetDisplayName(statusReturned);
+            string approved = EnumExtensions.GetDisplayName(statusApproved);
+            string rejected = EnumExtensions.GetDisplayName(statusRejected);
+
+            List<SelectListItem> items = new List<SelectListItem>();
+            items.Add(new SelectListItem { Text = returned, Value = statusReturned.ToString() });
+            items.Add(new SelectListItem { Text = approved, Value = statusApproved.ToString() });
+            items.Add(new SelectListItem { Text = rejected, Value = statusRejected.ToString() });
+
+            return items;
         }
     }
 }
