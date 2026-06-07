@@ -8,6 +8,7 @@ namespace ExpenseSystem.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
 
+
         public AccountController(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
@@ -26,6 +27,7 @@ namespace ExpenseSystem.Controllers
             {
                 UserName = model.Username,
                 Email = model.Email
+
             };
 
             if (!ModelState.IsValid)
@@ -44,6 +46,8 @@ namespace ExpenseSystem.Controllers
 
                 return View(model);
             }
+
+            await _userManager.AddToRoleAsync(user, "Employee");
 
             return RedirectToAction("Index", "Login");
 
