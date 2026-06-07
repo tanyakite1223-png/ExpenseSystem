@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseSystem.Controllers
 {
@@ -68,8 +69,10 @@ namespace ExpenseSystem.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var expense = _context.Expenses.Find(id);
-
             if (expense == null) return NotFound();
+
+            var authResult = Getauthorization(expense);
+            if (authResult != null) return authResult;
 
             ViewBag.username = await GetApplicantNameAsync(expense.ApplicantId);
 
@@ -81,9 +84,15 @@ namespace ExpenseSystem.Controllers
             return View(expense);
         }
 
+
         [HttpPost]
         public async Task<IActionResult> Edit(Expense expense)
         {
+            var _expense = _context.Expenses.AsNoTracking().FirstOrDefault(e => e.ExpenseId == expense.ExpenseId);
+            var authResult = Getauthorization(_expense);
+
+            if (authResult != null) return authResult;
+
             if (expense.Status == ExpenseStatus.Rejected && string.IsNullOrWhiteSpace(expense.RejectionReason))
             {
                 ModelState.AddModelError("RejectionReason", "請輸入拒絕原因");
@@ -100,7 +109,6 @@ namespace ExpenseSystem.Controllers
                 {
                     expense.Status = ExpenseStatus.Submitted;
                 }
-
 
                 _context.Expenses.Update(expense);
                 _context.SaveChanges();
@@ -187,6 +195,18 @@ namespace ExpenseSystem.Controllers
             items.Add(new SelectListItem { Text = rejected, Value = statusRejected.ToString() });
 
             return items;
+        }
+
+        private IActionResult Getauthorization(Expense expense)
+        {
+
+            bool isManager = User.IsInRole("Manager");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            bool isOwnerAndEditable = expense.ApplicantId == userId && (expense.Status == ExpenseStatus.Draft || expense.Status == ExpenseStatus.Returned);
+
+            if (!isManager && !isOwnerAndEditable) return Forbid();
+            return null;
         }
     }
 }
