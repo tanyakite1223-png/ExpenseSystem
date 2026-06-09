@@ -7,6 +7,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace ExpenseSystem.Controllers
 {
     [Authorize]
@@ -22,19 +23,41 @@ namespace ExpenseSystem.Controllers
         }
 
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             var expenseList = new List<Expense>();
+            int TotalPages = 0;
+
+            if (page < 1) page = 1;
+
+            int pageSize = 10;
+            int skipRows = (page - 1) * pageSize;
 
             if (User.IsInRole(role: "Manager"))
             {
-                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft).ToList();
+                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
+                TotalPages = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft).Count();
             }
             else
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).ToList();
+                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
+                TotalPages = _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).Count();
             }
+
+            ViewBag.CurrentPage = page;
+
+
+            if (TotalPages % pageSize == 0)
+            {
+                TotalPages = TotalPages / pageSize;
+            }
+            else
+            {
+                TotalPages = (TotalPages / pageSize) + 1;
+            }
+
+            ViewBag.TotalPages = TotalPages;
 
             foreach (var item in expenseList)
             {
