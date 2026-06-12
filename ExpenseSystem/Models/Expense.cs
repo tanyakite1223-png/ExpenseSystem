@@ -29,6 +29,10 @@ namespace ExpenseSystem.Models
 
         public bool IsDeleted { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+
+        public List<ExpenseDetail>? ExpenseDetails { get; set; }
+
     }
 
     public enum ExpenseStatus

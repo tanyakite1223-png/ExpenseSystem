@@ -9,10 +9,10 @@ namespace ExpenseSystem.Data
     {
         public ExpenseDbContext(DbContextOptions<ExpenseDbContext> options) : base(options)
         {
-
-
         }
 
         public DbSet<Expense> Expenses { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<ExpenseDetail> ExpenseDetails { get; set; }
     }
 }
