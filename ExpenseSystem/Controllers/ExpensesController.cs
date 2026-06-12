@@ -79,6 +79,7 @@ namespace ExpenseSystem.Controllers
             if (ModelState.IsValid)
             {
                 expense.ApplicantId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                expense.CreatedAt = DateTime.UtcNow;
                 _context.Expenses.Add(expense);
                 _context.SaveChanges();
                 return RedirectToAction("Index");
@@ -133,6 +134,7 @@ namespace ExpenseSystem.Controllers
                     expense.Status = ExpenseStatus.Submitted;
                 }
 
+                expense.CreatedAt = _expense.CreatedAt;
                 _context.Expenses.Update(expense);
                 _context.SaveChanges();
 

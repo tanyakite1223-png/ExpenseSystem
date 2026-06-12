@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ExpenseSystem.Data;
 using Microsoft.AspNetCore.Identity;
 using Scalar.AspNetCore;
-
+using ExpenseSystem.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,10 +44,20 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+
 using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    var expenseDbContext = scope.ServiceProvider.GetRequiredService<ExpenseDbContext>();
+
+    if (expenseDbContext.Projects.Count() == 0)
+    {
+        expenseDbContext.Projects.AddRange(new Project { ProjectName = "一般支出", IsActive = true });
+        expenseDbContext.SaveChanges();
+    }
+
 
     // 在這裡建立角色和使用者
     if (!await roleManager.RoleExistsAsync("Manager"))

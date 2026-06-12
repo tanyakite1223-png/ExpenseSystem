@@ -36,6 +36,9 @@ namespace ExpenseSystem.Migrations
                     b.Property<string>("ApplicantId")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -59,6 +62,59 @@ namespace ExpenseSystem.Migrations
                     b.HasKey("ExpenseId");
 
                     b.ToTable("Expenses");
+                });
+
+            modelBuilder.Entity("ExpenseSystem.Models.ExpenseDetail", b =>
+                {
+                    b.Property<int>("ExpenseDetailId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExpenseDetailId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ExpenseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ExpenseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ExpenseDetailId");
+
+                    b.HasIndex("ExpenseId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ExpenseDetails");
+                });
+
+            modelBuilder.Entity("ExpenseSystem.Models.Project", b =>
+                {
+                    b.Property<int>("ProjectId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectId"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ProjectName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ProjectId");
+
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -259,6 +315,25 @@ namespace ExpenseSystem.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ExpenseSystem.Models.ExpenseDetail", b =>
+                {
+                    b.HasOne("ExpenseSystem.Models.Expense", "Expense")
+                        .WithMany("ExpenseDetails")
+                        .HasForeignKey("ExpenseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ExpenseSystem.Models.Project", "Project")
+                        .WithMany("ExpenseDetails")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Expense");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -308,6 +383,16 @@ namespace ExpenseSystem.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ExpenseSystem.Models.Expense", b =>
+                {
+                    b.Navigation("ExpenseDetails");
+                });
+
+            modelBuilder.Entity("ExpenseSystem.Models.Project", b =>
+                {
+                    b.Navigation("ExpenseDetails");
                 });
 #pragma warning restore 612, 618
         }
