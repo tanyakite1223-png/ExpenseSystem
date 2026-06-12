@@ -24,6 +24,7 @@ ExpenseSystem(報銷系統)從 ASP.NET Core 教學專案,正在轉型為 Amber �
 
 - **.NET 10** + ASP.NET Core MVC
 - **EF Core 10.0.7** + SQL Server LocalDB
+- **ASP.NET Core Identity** 認證授權
 - **Scalar** 作為 API 文件介面
 - **前端**:目前是 Razor + Bootstrap(預設),未來會加 vanilla JS
 - **版控**:git + GitHub(HTTPS + Git Credential Manager)
@@ -46,21 +47,30 @@ D:\Workshops\Amber\ExpenseSystem\          ← git repo 根
     ├── Program.cs
     ├── Controllers\
     │   ├── ExpensesController.cs          ← MVC CRUD
-    │   └── ApiExpensesController.cs       ← Web API CRUD
+    │   ├── ApiExpensesController.cs       ← Web API CRUD
+    │   ├── LoginController.cs             ← 登入/登出(Identity)
+    │   └── AccountController.cs          ← Register
     ├── Models\
-    │   └── Expense.cs
+    │   ├── Expense.cs
+    │   ├── LoginViewModel.cs
+    │   └── RegisterViewModel.cs
     ├── Data\
-    │   └── ExpenseDbContext.cs
+    │   └── ExpenseDbContext.cs            ← 繼承 IdentityDbContext
     ├── Views\
     │   ├── _ViewImports.cshtml
-    │   └── Expenses\
-    │       ├── Index.cshtml
-    │       ├── Create.cshtml
-    │       ├── Edit.cshtml
-    │       └── Delete.cshtml
+    │   ├── Expenses\
+    │   │   ├── Index.cshtml
+    │   │   ├── Create.cshtml
+    │   │   ├── Edit.cshtml
+    │   │   └── Delete.cshtml
+    │   ├── Login\
+    │   │   └── Index.cshtml
+    │   └── Account\
+    │       └── Register.cshtml
     └── Migrations\
         ├── InitialCreate
-        └── FixAmountPrecision
+        ├── FixAmountPrecision
+        └── AddIdentityTables
 ```
 
 ---
@@ -68,10 +78,42 @@ D:\Workshops\Amber\ExpenseSystem\          ← git repo 根
 ## 4. 資料模型(目前)
 
 ### Expense
-- Id (PK)
-- (其他欄位 — Amber 進來時補完整)
+| 欄位 | 型別 | 說明 |
+|------|------|------|
+| ExpenseId | int (PK) | |
+| Title | string (Required) | |
+| Amount | decimal(18,2) | |
+| ExpenseDate | DateTime | |
+| Description | string? | |
+| Status | ExpenseStatus (enum) | Draft/Submitted/Approved/Rejected |
+| RejectionReason | string? | Manager 退件時填寫 |
+| IsDeleted | bool | 軟刪除標記 |
+| ApplicantId | string? | 申請者 UserId(對應 AspNetUsers) |
+| CreatedAt | DateTime | 系統自動寫入,使用者不可見不可改 |
 
-> 待補:正式的 entity 關係圖。目前只有 `Expense` 一個 entity,等加入使用者、明細等之後再補。
+### Project
+| 欄位 | 型別 | 說明 |
+|------|------|------|
+| ProjectId | int (PK) | |
+| ProjectName | string | |
+| IsActive | bool | |
+
+### ExpenseDetail
+| 欄位 | 型別 | 說明 |
+|------|------|------|
+| ExpenseDetailId | int (PK) | |
+| ExpenseDate | DateTime | |
+| Amount | decimal(18,2) | |
+| Description | string | |
+| ExpenseId | int (FK → Expense) | NOT NULL |
+| ProjectId | int (FK → Project) | NOT NULL |
+
+### 關聯
+- Expense 1 — 多 ExpenseDetail
+- Project 1 — 多 ExpenseDetail
+
+### ExpenseStatus (enum)
+`Draft` / `Submitted` / `Returned` / `Approved` / `Rejected`,含中文 `[Display]` 標註
 
 ---
 
@@ -81,6 +123,14 @@ D:\Workshops\Amber\ExpenseSystem\          ← git repo 根
 - ✅ Expense Web API — GetAll、GetById、Create、Update、Delete
 - ✅ Scalar API 文件介面(`http://localhost:5242/scalar/v1`)
 - ✅ CORS 設定(開發用 AllowAll)
+- ✅ ASP.NET Core Identity 認證(登入、登出、Cookie Auth)
+- ✅ RBAC — Manager 可刪除/審核,Employee 可新增/編輯
+- ✅ Seed 資料 — admin(Manager)/ Amber(Employee)
+- ✅ 新帳號註冊自動指派 Employee 角色
+- ✅ Expense Status 欄位 — 狀態流程、角色分流審核、退件原因、軟刪除
+- ✅ Edit server-side 授權控管 — Employee 只能修改自己的 Draft/Returned 單,Manager 不限
+- ✅ Index 清單顯示優化 — 分頁(server-side)、流水號、金額無小數、日期只顯示日期
+- ✅ 資料模型擴充(第一棒) — 新增 Project、ExpenseDetail model 與一對多關聯;Expense 加 CreatedAt;種子資料「一般支出」;Include 查詢驗證 JOIN 成立
 
 ---
 
@@ -101,17 +151,29 @@ D:\Workshops\Amber\ExpenseSystem\          ← git repo 根
 
 ### 規劃中
 
-(待填)
+| 優先順序 | Feature | 說明 |
+|---------|---------|------|
+| 1 | ~~**Register 頁面**~~ | ✅ 完成 |
+| 2 | ~~**Expense Status 欄位**~~ | ✅ 完成 |
+| 3 | ~~**送件功能**~~ | ✅ 完成 |
+| 4 | **審核功能** | Manager 核准 / 退件 — ✅ 已實作(Edit 角色分流) |
+| 5 | ~~**補件退件**~~ | ✅ 完成 — Returned 狀態 + Employee 可修改後重送 |
 
 ### 已完成
 
-(隨著功能上線移到這裡)
+- ✅ Expense CRUD(MVC + Web API)
+- ✅ ASP.NET Core Identity 認證
+- ✅ RBAC — Manager / Employee 角色分流
+- ✅ Register 頁面 — 員工可自行建帳號
+- ✅ Expense Status — 狀態欄位、角色分流審核、退件原因、軟刪除
+- ✅ 送審功能 — Employee 可從 Index 送審(Draft → Submitted),依角色控制按鈕顯示
+- ✅ 申請者欄位 — Expense 記錄 ApplicantId,Employee Index 只顯示自己的單子
 
 ---
 
 ## 7. 進行中的工作
 
-(目前無)
+- **報銷單明細(第二棒)** — 資料層已就緒,待下個 session 規劃 ExpenseDetail CRUD 與 Project 管理介面
 
 未來格式範例:
 - **feature/user-auth** — 使用者認證系統
@@ -142,7 +204,8 @@ D:\Workshops\Amber\ExpenseSystem\          ← git repo 根
 | 改錯地方(reset vs revert) | ⬜ | | |
 | 衝突解決 | ⬜ | | |
 | 想拆 commit | ⬜ | | |
-| commit message 寫錯(amend) | ⬜ | | |
+| commit message 寫錯(amend) | ✅ | 2026-05-21 | 編輯器誤入 # 註解,用 amend + force push 修正 |
+| PR 流程(GitHub PR merge) | ✅ | 2026-05-25 | feature/add-Expense-Status 第一次走完完整 PR 流程 |
 | feature branch 寫太久(squash) | ⬜ | | |
 
 ---
@@ -157,7 +220,7 @@ D:\Workshops\Amber\ExpenseSystem\          ← git repo 根
 | LINQ 複雜查詢 | 入門 |
 | Web API 設計 | 入門 |
 | 認證授權 | 概念 |
-| 前端 JS | 未開始 |
+| 前端 JS | 入門(addEventListener、style.display、disabled、querySelectorAll、forEach、data-* attribute、CSS 多選器) |
 | 部署 | 未實作 |
 | 測試 | 未開始 |
 

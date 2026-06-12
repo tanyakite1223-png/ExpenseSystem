@@ -1,82 +1,69 @@
-# Handoff — 初始版(實戰場啟用)
-
-> 這份是實戰場 Claude Code 的第一個 handoff。
-> Amber 第一個 session 開始時讀這份。
-
----
+# Handoff — 2026-06-12
 
 ## 我們上次做到哪
 
-這是**實戰場的第一次 session**,還沒有「上次」。
-
-過去脈絡:Amber 在 Project Chat 完成了 C# 基礎、ASP.NET Core MVC、EF Core、Web API、認證授權的觀念與基本實作。ExpenseSystem 專案已建立並推上 GitHub,目前 main 分支有完整的 Expense CRUD(MVC + Web API)。
-
-現在進入新階段:**離開 Project Chat,以「資深同事」的方式陪她實戰**,直到她準備好正式找工作。
+完成 **報銷單主檔/明細/專案 — 資料模型與關聯(第一棒)**。PR #12 merge 完成,補充 commit 也已 push,main 乾淨。
 
 ---
 
-## 第一個 session 的目標 — Onboarding(上工)
+## 完成的工作
 
-這個 session **不是寫 code**,而是讓 Amber 跟你(Claude Code)一起把實戰場機制建立起來。具體要做的事:
+### 新增 model
 
-### Step 1:讀文件,確認你理解
+- `Models/Project.cs`:ProjectId(PK)、ProjectName、IsActive、`List<ExpenseDetail>? ExpenseDetails`
+- `Models/ExpenseDetail.cs`:ExpenseDetailId(PK)、ExpenseDate、Amount(decimal(18,2))、Description、ExpenseId(FK)、ProjectId(FK)、`Expense? Expense`、`Project? Project`
+- `Models/Expense.cs`:加了 `CreatedAt`(DateTime)和 `List<ExpenseDetail>? ExpenseDetails`
 
-請你讀:
-1. `CLAUDE.md`(實戰場規範書 — 你的工作手冊)
-2. 本檔(`current-handoff.md`)
-3. `.claude/PROJECT_OVERVIEW.md`(專案總覽)
+### Migration
 
-讀完後,**用你自己的話**跟 Amber 確認:
-- 你是誰、你的角色是什麼
-- handoff 機制怎麼運作
-- 什麼狀況該建議她回 Project Chat
+- `20260610154149_AddProjectAndExpenseDetail`:建出 Projects、ExpenseDetails 兩張表 + 外鍵 + index,並在 Expenses 加 CreatedAt 欄位
 
-如果文件有不清楚的地方,跟 Amber 一起討論,把改良建議寫在 session 結束的 handoff 中。
+### Controller
 
-### Step 2:跟 Amber 一起把 PROJECT_OVERVIEW.md 補完
+- `ExpensesController.Create()` POST:加了 `expense.CreatedAt = DateTime.UtcNow`
+- `ExpensesController.Edit()` POST:加了 `expense.CreatedAt = _expense.CreatedAt`(防止 Update 覆蓋原始建立時間)
 
-目前 PROJECT_OVERVIEW.md 是骨架版,有幾個區塊待 Amber 自己決定:
+### 種子資料
 
-1. **§4 資料模型**:把 Expense 的欄位列出來,順便畫個簡單的 entity 文字圖
-2. **§6 功能 Roadmap**:這是最重要的。**讓 Amber 決定**接下來想做什麼功能、做的順序、為什麼這樣排
-   - 你可以建議、可以提醒「這個太大要拆」「這個順序會撞 git 劇本」等等
-   - 但**不要替她決定**。這是她的履歷作品
-3. **§10 學習目標追蹤**:她自評目前各領域的程度,以後做完 feature 來更新
+- `Program.cs`:啟動時若 Projects 為空,插入一筆「一般支出」(`IsActive = true`,Id 由 DB 自動產生)
 
-### Step 3:確認 git 工作紀律
+### Include 驗證
 
-跟 Amber 確認:
-- 從現在開始,不在 main 直接 commit
-- 開 feature/* 或 fix/* branch
-- 完成後 merge 回 main(用 PR 還是直接 merge,她自己選並體會差別)
-
-### Step 4:寫 Onboarding 結束的 handoff
-
-把上面討論的成果寫成新的 `current-handoff.md`,把這份初始版歸檔到 `handoff-archive/2026-MM-DD_initial-onboarding.md`。
+- 暫時程式已刪除,驗證結果:`Include(ExpenseDetails).ThenInclude(Project)` 成功查回一對多關聯,Console 印出正確
 
 ---
 
-## 對你(Claude Code)的特別提醒
+## 重要設計決策紀錄
 
-1. **這個 session 是「機制建立」,不是「寫 code」**。不要急著建議「我們來寫個功能」
-2. **Amber 是第一次用這套機制**,她可能不熟。耐心走,她有疑問就停下來討論
-3. **她可能會質疑機制的某些部分**,這是好事(本來就是要被質疑的)。認真聽,寫進改良提案
-4. 第一次互動,**人格定位很重要**。記得你是資深同事,不是老師。但 onboarding 場景下,可以稍微多解釋一點 — 第二個 session 才正式進入「資深同事」模式
+- Navigation property 要加 `?`(nullable),否則 non-nullable reference type 不在 form 裡會讓 ModelState 失敗
+- EF Core PK 自動辨識規則:屬性名稱必須是 `Id` 或 `{ClassName}Id`,`DetailId` 不符合所以改成 `ExpenseDetailId`
+- 種子資料不用 `HasData()` 是因為 `HasData` 必須手動指定 Id;Runtime 插入才能讓 DB 自動產生 Id
+
+---
+
+## 下次起手建議
+
+這是「第一棒」,資料層打好了。下一步(第二棒以後)方向:
+
+1. **ExpenseDetail CRUD**:新增/編輯報銷單時能新增明細(UI 流程待設計)
+2. **Project CRUD**:管理專案清單的介面(之後當 SelectListItem 用)
+
+上一個 session 討論過「類型專屬表」的複雜設計,Project Chat 這次刻意先做最基本的版本。下個 session 開始前建議先確認 Project Chat 的第二棒任務方向。
+
+---
+
+## 對下個 session 的提醒
+
+- Amber 對 navigation property 的「一對多方向」需要多想一下(哪邊放 List、哪邊放單筆),但靠反問能自己想通
+- EF Core 的 PK 命名規則她踩過了,下次新增 model 可以先問她「PK 你打算怎麼命名」確認方向
+- `AddRange` vs `Add` 她習慣用 `AddRange` 即使只有一筆,可以在適當時機提一下規範
+- Amber 不小心把 terminal output 貼回 terminal 造成一堆 PowerShell 錯誤,提醒她貼指令時確認是指令不是 output
 
 ---
 
 ## 環境狀態快照
 
-- **git**:`main`,最新 commit `6aaaed7`(test: 測試分支功能),本機與 origin/main 同步
-- **DB**:`ExpenseSystem`,migration 全套用(InitialCreate + FixAmountPrecision),Expenses 表有 8 筆資料
-- **NuGet**:EF Core 10.0.7、Scalar.AspNetCore
-- **可跑性**:`dotnet run` → `http://localhost:5242`,Scalar UI 在 `/scalar/v1`
-
----
-
-## 下次起手建議(給 onboarding 結束後的下個 session)
-
-待本 session 結束時由你寫,通常會包含:
-- Amber 在 roadmap 上選的第一個 feature 是什麼
-- 第一個 feature 預計怎麼拆
-- 開哪個 branch
+- **git**: `main`,PR #12 merged + 補充 commit(0c29554),已與 origin/main 同步,乾淨
+- **DB**: 10 個 migration,Projects 表有一筆「一般支出」,ExpenseDetails 表有測試資料(Include 驗證用,不影響功能)
+- **可跑性**: `dotnet run` → `http://localhost:5242`,Create/Edit/Index 功能正常
+- **測試帳號**: admin(Manager)、Amber(Employee)
