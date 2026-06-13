@@ -8,9 +8,5 @@ namespace ExpenseSystem.Models
 
         public List<ExpenseDetail>? ExpenseDetails { get; set; }
 
-        public static explicit operator int(Project? v)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
