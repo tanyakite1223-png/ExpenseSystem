@@ -1,0 +1,44 @@
+@using ExpenseSystem.Models
+@model List<Project>
+
+<h2>專案管理列表</h2>
+<a asp-controller="Login" asp-action="Logout">登出系統</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>編號</th>
+            <th>專案名稱</th>
+            <th>功能</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int itemNumber = 1;
+        }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@(itemNumber++)</td>
+                <td>@item.ProjectName</td>
+                <td>
+                    <form method="post" asp-action="Archive" asp-route-id="@item.ProjectId" class="ArchiveBtn"
+                          data-statusBtn="@item.ProjectName">
+                        <button type="submit">封存</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<script>
+    const buttons = document.querySelectorAll(".ArchiveBtn");
+
+    buttons.forEach(function (btn) {
+        if (btn.dataset.statusbtn.trim() === "一般支出") {
+            btn.style.display = 'none';
+        }
+    });
+</script>

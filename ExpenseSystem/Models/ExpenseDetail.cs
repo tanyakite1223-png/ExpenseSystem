@@ -6,18 +6,30 @@ namespace ExpenseSystem.Models
     public class ExpenseDetail
     {
         public int ExpenseDetailId { get; set; }
-        public ExpenseCategory Category { get; set; }      // 類型
-        public DateTime ExpenseDate { get; set; }      // 交易日期   
-        public string StoreName { get; set; }         // 商店名稱
-        public string InvoiceNumber { get; set; }       // 發票編號
 
+        [Display(Name = "費用類型")]
+        public ExpenseCategory Category { get; set; }
+
+        [Display(Name = "交易日期")]
+        public DateTime ExpenseDate { get; set; }
+
+        [Display(Name = "商店名稱")]
+        public string StoreName { get; set; }
+
+        [Display(Name = "發票編號")]
+        public string InvoiceNumber { get; set; }
+
+        [Display(Name = "金額")]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal Amount { get; set; }           // 金額
+        public decimal Amount { get; set; }
 
-        public string Description { get; set; }       // 描述內容
+        [Display(Name = "描述內容")]
+        public string Description { get; set; }
 
         // FK — 存數字(指向哪張報銷單)
         public int ExpenseId { get; set; }
+
+        [Display(Name = "專案名稱")]
         public int ProjectId { get; set; }
 
         // Navigation property — 存物件(EF Core 幫你把那張報銷單整個載回來)
