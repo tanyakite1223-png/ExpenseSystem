@@ -70,23 +70,53 @@ namespace ExpenseSystem.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var viewModel = new ExpenseCreateViewModel()
+            {
+                Expense = new Expense(),
+                ExpenseDetails = [
+                    new ExpenseDetail(),
+                    new ExpenseDetail(),
+                    new ExpenseDetail(),
+                    new ExpenseDetail(),
+                    new ExpenseDetail()
+                ]
+            };
+
+
+            //專案名稱SelectListItem
+            List<SelectListItem> items = new List<SelectListItem>();
+            var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+            foreach (var item in projectList)
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = item.ProjectName,
+                    Value = item.ProjectId.ToString()
+                });
+            }
+            ViewBag.projectSelect = items;
+
+            //費用類型
+            ViewBag.Category = GetCategorySelectListItems();
+            return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Expense expense)
+        public async Task<IActionResult> Create(ExpenseCreateViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                expense.ApplicantId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                expense.CreatedAt = DateTime.UtcNow;
-                _context.Expenses.Add(expense);
+                viewModel.Expense.ApplicantId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                viewModel.Expense.CreatedAt = DateTime.UtcNow;
+                viewModel.Expense.ExpenseDetails = viewModel.ExpenseDetails;
+
+                _context.Expenses.Add(viewModel.Expense);
                 _context.SaveChanges();
-                return RedirectToAction("Index");
+
+                return RedirectToAction("Detail", new { id = viewModel.Expense.ExpenseId });
             }
 
-            return View(expense);
-
+            return View(viewModel);
         }
 
         [HttpGet]
@@ -102,7 +132,7 @@ namespace ExpenseSystem.Controllers
 
             if (User.IsInRole(role: "Manager"))
             {
-                ViewBag.selectItem = GetSelectListItems();
+                ViewBag.selectItem = GetStatusSelectListItems();
             }
 
             return View(expense);
@@ -144,7 +174,7 @@ namespace ExpenseSystem.Controllers
 
             if (User.IsInRole(role: "Manager"))
             {
-                ViewBag.selectItem = GetSelectListItems();
+                ViewBag.selectItem = GetStatusSelectListItems();
             }
 
             return View(expense);
@@ -177,6 +207,17 @@ namespace ExpenseSystem.Controllers
         }
 
 
+        public async Task<IActionResult> Detail(int id)
+        {
+            var expense = await _context.Expenses.Include(ed => ed.ExpenseDetails)
+                             .ThenInclude(p => p.Project)
+                             .FirstOrDefaultAsync(e => e.ExpenseId == id);
+
+            if (expense == null) return NotFound();
+
+            return View(expense);
+        }
+
         [HttpPost]
         public IActionResult Submitted(int id)
         {
@@ -193,18 +234,18 @@ namespace ExpenseSystem.Controllers
 
         private async Task<string> GetApplicantNameAsync(string id)
         {
-            var user = (await _userManager.FindByIdAsync(id));
+            var user = await _userManager.FindByIdAsync(id);
             return user?.UserName;
         }
 
         private async Task<string> GetApplicantIdAsync(string name)
         {
-            var user = (await _userManager.FindByNameAsync(name));
+            var user = await _userManager.FindByNameAsync(name);
             return user?.Id;
         }
 
 
-        private List<SelectListItem> GetSelectListItems()
+        private List<SelectListItem> GetStatusSelectListItems()
         {
             ExpenseStatus statusReturned = ExpenseStatus.Returned;
             ExpenseStatus statusApproved = ExpenseStatus.Approved;
@@ -221,6 +262,23 @@ namespace ExpenseSystem.Controllers
 
             return items;
         }
+
+        private List<SelectListItem> GetCategorySelectListItems()
+        {
+            List<SelectListItem> items = new List<SelectListItem>();
+
+            foreach (ExpenseCategory category in Enum.GetValues(typeof(ExpenseCategory)))
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = EnumExtensions.GetDisplayName(category),
+                    Value = category.ToString()
+                });
+            }
+
+            return items;
+        }
+
 
         private IActionResult Getauthorization(Expense expense)
         {
