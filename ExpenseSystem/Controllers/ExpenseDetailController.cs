@@ -35,7 +35,7 @@ namespace ExpenseSystem.Controllers
             }
             ViewBag.projectSelect = items;
 
-            //費土類型SelectListItem
+            //費用類型SelectListItem
             ViewBag.categorySelect = GetSelectListItems();
             return View();
         }
@@ -43,13 +43,13 @@ namespace ExpenseSystem.Controllers
         [HttpPost]
         public IActionResult Create(ExpenseDetail expenseDetail)
         {
-            expenseDetail.ExpenseId = 14;
             _Context.Add(expenseDetail);
             _Context.SaveChanges();
 
             return RedirectToAction("Index");
         }
 
+        //費用類型
         private List<SelectListItem> GetSelectListItems()
         {
             List<SelectListItem> items = new List<SelectListItem>();
