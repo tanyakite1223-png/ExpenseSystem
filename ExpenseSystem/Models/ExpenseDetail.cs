@@ -41,9 +41,6 @@ namespace ExpenseSystem.Models
 
     public enum ExpenseCategory
     {
-        [Display(Name = "發票")]
-        Invoice,
-
         [Display(Name = "收據")]
         Receipt,
 
