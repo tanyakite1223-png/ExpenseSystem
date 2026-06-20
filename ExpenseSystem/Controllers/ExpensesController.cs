@@ -75,12 +75,11 @@ namespace ExpenseSystem.Controllers
                 Expense = new Expense(),
                 ExpenseDetails = [
                     new ExpenseDetail(),
-                    new ExpenseDetail(),
-                    new ExpenseDetail(),
-                    new ExpenseDetail(),
                     new ExpenseDetail()
                 ]
             };
+
+            ViewBag.expenseDetails = viewModel.ExpenseDetails.Count;
 
 
             //專案名稱SelectListItem
@@ -96,6 +95,9 @@ namespace ExpenseSystem.Controllers
             }
             ViewBag.projectSelect = items;
 
+            //單據類型
+            ViewBag.Receipt = GetReceiptSelectListItems();
+
             //費用類型
             ViewBag.Category = GetCategorySelectListItems();
             return View(viewModel);
@@ -104,6 +106,18 @@ namespace ExpenseSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(ExpenseCreateViewModel viewModel)
         {
+            var result = viewModel.ExpenseDetails;
+            ViewBag.expenseDetails = result.Count;
+
+            for (int i = 0; i < result.Count; i++)
+            {
+                if (result[i].ReceiptType == ExpenseReceipt.UniformInvoice && string.IsNullOrWhiteSpace(result[i].InvoiceNumber))
+                {
+                    ModelState.AddModelError($"ExpenseDetails[{i}].InvoiceNumber", "統一發票必填");
+                }
+            }
+
+
             if (ModelState.IsValid)
             {
                 viewModel.Expense.ApplicantId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -115,6 +129,25 @@ namespace ExpenseSystem.Controllers
 
                 return RedirectToAction("Detail", new { id = viewModel.Expense.ExpenseId });
             }
+
+            //專案名稱SelectListItem
+            List<SelectListItem> items = new List<SelectListItem>();
+            var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+            foreach (var item in projectList)
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = item.ProjectName,
+                    Value = item.ProjectId.ToString()
+                });
+            }
+            ViewBag.projectSelect = items;
+
+            //單據類型
+            ViewBag.Receipt = GetReceiptSelectListItems();
+
+            //費用類型
+            ViewBag.Category = GetCategorySelectListItems();
 
             return View(viewModel);
         }
@@ -262,6 +295,23 @@ namespace ExpenseSystem.Controllers
 
             return items;
         }
+
+        private List<SelectListItem> GetReceiptSelectListItems()
+        {
+            List<SelectListItem> items = new List<SelectListItem>();
+
+            foreach (ExpenseReceipt Receipt in Enum.GetValues(typeof(ExpenseReceipt)))
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = EnumExtensions.GetDisplayName(Receipt),
+                    Value = Receipt.ToString()
+                });
+            }
+
+            return items;
+        }
+
 
         private List<SelectListItem> GetCategorySelectListItems()
         {
