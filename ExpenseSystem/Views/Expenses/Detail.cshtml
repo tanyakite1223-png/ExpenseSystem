@@ -29,6 +29,7 @@
         <table style="width: 100%; border-collapse: collapse; border: 1px solid #ccc; text-align: left;">
             <tr style="background-color: #f2f2f2; border-bottom: 2px solid #ccc;">
                 <th style="padding: 10px; border: 1px solid #ddd;">項次</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">單據類型</th>
                 <th style="padding: 10px; border: 1px solid #ddd;">費用類型</th>
                 <th style="padding: 10px; border: 1px solid #ddd;">交易日期</th>
                 <th style="padding: 10px; border: 1px solid #ddd;">發票編號</th>
@@ -44,7 +45,9 @@
             @foreach (var detail in Model.ExpenseDetails)
             {
                 <tr style="border-bottom: 1px solid #ddd;">
-                    <td style="padding: 8px; border: 1px solid #ddd;">@itemNumber</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@(itemNumber++)</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@EnumExtensions.GetDisplayName(detail.ReceiptType)
+                    </td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@EnumExtensions.GetDisplayName(detail.Category)</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@detail.ExpenseDate</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@detail.InvoiceNumber</td>
@@ -53,7 +56,6 @@
                     <td style="padding: 8px; border: 1px solid #ddd;">@detail.Description</td>
                     <td style="padding: 8px; border: 1px solid #ddd;">@detail.Project?.ProjectName</td>
                 </tr>
-                itemNumber++;
             }
         </table>
     </div>
