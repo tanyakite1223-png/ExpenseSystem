@@ -7,17 +7,21 @@ namespace ExpenseSystem.Models
     {
         public int ExpenseDetailId { get; set; }
 
+        [Display(Name = "單據類型")]
+        public ExpenseReceipt ReceiptType { get; set; }
+
         [Display(Name = "費用類型")]
         public ExpenseCategory Category { get; set; }
 
         [Display(Name = "交易日期")]
-        public DateTime ExpenseDate { get; set; }
+        [Required(ErrorMessage = "交易日期必填")]
+        public DateOnly? ExpenseDate { get; set; }
 
         [Display(Name = "商店名稱")]
         public string StoreName { get; set; }
 
         [Display(Name = "發票編號")]
-        public string InvoiceNumber { get; set; }
+        public string? InvoiceNumber { get; set; }
 
         [Display(Name = "金額")]
         [Column(TypeName = "decimal(18,2)")]
@@ -41,26 +45,38 @@ namespace ExpenseSystem.Models
 
     public enum ExpenseCategory
     {
-        [Display(Name = "收據")]
-        Receipt,
-
         [Display(Name = "交通費")]
-        Transportation,
+        Transportation = 1,
 
         [Display(Name = "郵資")]
-        Postage,
+        Postage = 2,
 
         [Display(Name = "文具用品")]
-        OfficeSupplies,
+        OfficeSupplies = 3,
 
         [Display(Name = "影印")]
-        Copying,
+        Copying = 4,
 
         [Display(Name = "餐飲費")]
-        MealExpense,
+        MealExpense = 5,
 
         [Display(Name = "雜項支出")]
-        Miscellaneous
+        Miscellaneous = 6
+    }
+
+    public enum ExpenseReceipt
+    {
+        [Display(Name = "統一發票")]
+        UniformInvoice = 0,
+
+        [Display(Name = "收據")]
+        Receipt = 1,
+
+        [Display(Name = "購票證明")]
+        TicketProof = 2,
+
+        [Display(Name = "其他")]
+        Other = 3
     }
 }
 
