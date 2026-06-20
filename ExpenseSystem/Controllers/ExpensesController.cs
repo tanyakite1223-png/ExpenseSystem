@@ -116,6 +116,25 @@ namespace ExpenseSystem.Controllers
                 return RedirectToAction("Detail", new { id = viewModel.Expense.ExpenseId });
             }
 
+            //專案名稱SelectListItem
+            List<SelectListItem> items = new List<SelectListItem>();
+            var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+            foreach (var item in projectList)
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = item.ProjectName,
+                    Value = item.ProjectId.ToString()
+                });
+            }
+            ViewBag.projectSelect = items;
+
+            //單據類型
+            ViewBag.Receipt = GetReceiptSelectListItems();
+
+            //費用類型
+            ViewBag.Category = GetCategorySelectListItems();
+
             return View(viewModel);
         }
 
@@ -262,6 +281,23 @@ namespace ExpenseSystem.Controllers
 
             return items;
         }
+
+        private List<SelectListItem> GetReceiptSelectListItems()
+        {
+            List<SelectListItem> items = new List<SelectListItem>();
+
+            foreach (ExpenseReceipt Receipt in Enum.GetValues(typeof(ExpenseReceipt)))
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = EnumExtensions.GetDisplayName(Receipt),
+                    Value = Receipt.ToString()
+                });
+            }
+
+            return items;
+        }
+
 
         private List<SelectListItem> GetCategorySelectListItems()
         {
