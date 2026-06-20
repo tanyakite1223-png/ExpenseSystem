@@ -24,12 +24,16 @@
 
         <p>費用明細</p>
         <hr>
-        @for (int i = 0; i < 5; i++)
+        @for (int i = 0; i < ViewBag.expenseDetails; i++)
         {
             <label asp-for="ExpenseDetails[i].ProjectId"></label>
             <select asp-for="ExpenseDetails[i].ProjectId" asp-items="@ViewBag.projectSelect" id="projectSelect">
             </select>
             <p></p>
+
+            <label asp-for="ExpenseDetails[i].ReceiptType"></label>
+            <select asp-for="ExpenseDetails[i].ReceiptType" asp-items="@ViewBag.Receipt" id="receiptSelect">
+            </select>　　　　
 
             <label asp-for="ExpenseDetails[i].Category"></label>
             <select asp-for="ExpenseDetails[i].Category" asp-items="@ViewBag.Category" id="categorySelect">
@@ -37,7 +41,7 @@
             <p></p>
 
             <label asp-for="ExpenseDetails[i].ExpenseDate"></label>
-            <input asp-for="ExpenseDetails[i].ExpenseDate" />
+            <input asp-for="ExpenseDetails[i].ExpenseDate" type="date" />
             <span asp-validation-for="ExpenseDetails[i].ExpenseDate"></span>
             <p></p>
 
