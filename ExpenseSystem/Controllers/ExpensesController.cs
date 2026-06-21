@@ -35,13 +35,13 @@ namespace ExpenseSystem.Controllers
 
             if (User.IsInRole(role: "Manager"))
             {
-                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
+                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft).Include(ed => ed.ExpenseDetails).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
                 TotalPages = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft).Count();
             }
             else
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
+                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).Include(ed => ed.ExpenseDetails).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
                 TotalPages = _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).Count();
             }
 
