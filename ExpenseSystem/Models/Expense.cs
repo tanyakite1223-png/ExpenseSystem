@@ -11,13 +11,6 @@ namespace ExpenseSystem.Models
         [Required(ErrorMessage = "Title必填")]
         public string Title { get; set; } = string.Empty;
 
-        [Display(Name = "金額")]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal Amount { get; set; }
-
-        [Display(Name = "消費日期")]
-        public DateTime ExpenseDate { get; set; }
-
         [Display(Name = "描述內容")]
         public string Description { get; set; }
 
@@ -32,6 +25,9 @@ namespace ExpenseSystem.Models
         public DateTime CreatedAt { get; set; }
 
         public List<ExpenseDetail>? ExpenseDetails { get; set; }
+
+        [NotMapped]
+        public decimal TotalAmount => ExpenseDetails?.Sum(ed => ed.Amount) ?? 0;
 
     }
 
