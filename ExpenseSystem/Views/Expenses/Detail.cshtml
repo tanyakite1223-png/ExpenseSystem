@@ -10,12 +10,8 @@
                 <td style="padding: 8px;"><input asp-for="Title" style="width: 100%;" /></td>
             </tr>
             <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 8px; font-weight: bold;"><label asp-for="Amount"></label></td>
-                <td style="padding: 8px;"><input asp-for="Amount" style="width: 100%;" /></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 8px; font-weight: bold;"><label asp-for="ExpenseDate"></label></td>
-                <td style="padding: 8px;"><input asp-for="ExpenseDate" type="date" style="width: 100%;" /></td>
+                <td style="padding: 8px; font-weight: bold;">總金額</td>
+                <td style="padding: 8px;">$@Model.TotalAmount.ToString("N0")</td>
             </tr>
             <tr style="border-bottom: 1px solid #ddd;">
                 <td style="padding: 8px; font-weight: bold;"><label asp-for="Description"></label></td>
