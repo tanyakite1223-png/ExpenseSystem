@@ -1,58 +1,70 @@
+@using System.Security.Claims
 @model Expense
 
-<h2>新增單據</h2>
-<form asp-action="Create" method="post">
-    <div>
-        <h3>主檔</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 8px; font-weight: bold; width: 15%;"><label asp-for="Title"></label></td>
-                <td style="padding: 8px;"><input asp-for="Title" style="width: 100%;" /></td>
-            </tr>
-            <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 8px; font-weight: bold;">總金額</td>
-                <td style="padding: 8px;">$@Model.TotalAmount.ToString("N0")</td>
-            </tr>
-            <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 8px; font-weight: bold;"><label asp-for="Description"></label></td>
-                <td style="padding: 8px;"><input asp-for="Description" style="width: 100%;" /></td>
-            </tr>
-        </table>
+<h2>新增成功</h2>
 
-        <input asp-for="Status" value="0" type="hidden" />
+<h3>主檔</h3>
+<table>
+    <tr>
+        <td><label asp-for="Title"></label></td>
+        <td><input asp-for="Title" /></td>
+    </tr>
+    <tr>
+        <td>總金額</td>
+        <td>$@Model.TotalAmount.ToString("N0")</td>
+    </tr>
+    <tr>
+        <td><label asp-for="Description"></label></td>
+        <td><input asp-for="Description" /></td>
+    </tr>
+</table>
 
-        <h3>費用明細</h3>
-        <table style="width: 100%; border-collapse: collapse; border: 1px solid #ccc; text-align: left;">
-            <tr style="background-color: #f2f2f2; border-bottom: 2px solid #ccc;">
-                <th style="padding: 10px; border: 1px solid #ddd;">項次</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">單據類型</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">費用類型</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">交易日期</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">發票編號</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">商店名稱</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">金額</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">描述內容</th>
-                <th style="padding: 10px; border: 1px solid #ddd;">專案名稱</th>
+
+<h3>費用明細</h3>
+<table>
+    <thead>
+        <tr>
+            <th>項次</th>
+            <th>單據類型</th>
+            <th>費用類型</th>
+            <th>交易日期</th>
+            <th>發票編號</th>
+            <th>商店名稱</th>
+            <th>金額</th>
+            <th>描述內容</th>
+            <th>專案名稱</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int itemNumber = 1;
+        }
+        @foreach (var detail in Model.ExpenseDetails)
+        {
+            <tr>
+                <td>@(itemNumber++)</td>
+                <td>@EnumExtensions.GetDisplayName(detail.ReceiptType)</td>
+                <td>@EnumExtensions.GetDisplayName(detail.Category)</td>
+                <td>@detail.ExpenseDate</td>
+                <td>@detail.InvoiceNumber</td>
+                <td>@detail.StoreName</td>
+                <td>@detail.Amount</td>
+                <td>@detail.Description</td>
+                <td>@detail.Project?.ProjectName</td>
             </tr>
+        }
+    </tbody>
+</table>
 
-            @{
-                int itemNumber = 1;
-            }
-            @foreach (var detail in Model.ExpenseDetails)
-            {
-                <tr style="border-bottom: 1px solid #ddd;">
-                    <td style="padding: 8px; border: 1px solid #ddd;">@(itemNumber++)</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@EnumExtensions.GetDisplayName(detail.ReceiptType)
-                    </td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@EnumExtensions.GetDisplayName(detail.Category)</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@detail.ExpenseDate</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@detail.InvoiceNumber</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@detail.StoreName</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@detail.Amount</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@detail.Description</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">@detail.Project?.ProjectName</td>
-                </tr>
-            }
-        </table>
-    </div>
-</form>
+<div>
+    @{
+        string? userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+    }
+
+    @if (Model.ApplicantId == userId && (ExpenseStatus.Draft == Model.Status || ExpenseStatus.Returned == Model.Status))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.ExpenseId">修 改</a>
+    }
+
+    <a asp-action="Index">回到首頁</a>
+</div>

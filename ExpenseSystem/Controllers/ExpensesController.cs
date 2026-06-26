@@ -70,7 +70,7 @@ namespace ExpenseSystem.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            var viewModel = new ExpenseCreateViewModel()
+            var viewModel = new ExpenseWithDetailsViewModel()
             {
                 Expense = new Expense(),
                 ExpenseDetails = [
@@ -104,7 +104,7 @@ namespace ExpenseSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ExpenseCreateViewModel viewModel)
+        public async Task<IActionResult> Create(ExpenseWithDetailsViewModel viewModel)
         {
             var result = viewModel.ExpenseDetails;
             ViewBag.expenseDetails = result.Count;
@@ -155,6 +155,134 @@ namespace ExpenseSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            var result = await _context.Expenses.Include(ed => ed.ExpenseDetails).FirstOrDefaultAsync(e => e.ExpenseId == id);
+            if (result is null) return NotFound();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            ViewBag.username = await GetApplicantNameAsync(result.ApplicantId);
+
+            if (result.ApplicantId != userId || (result.Status != ExpenseStatus.Draft && result.Status != ExpenseStatus.Returned))
+            {
+                return Forbid();
+            }
+
+            //專案名稱SelectListItem
+            List<SelectListItem> items = new List<SelectListItem>();
+            var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+            foreach (var item in projectList)
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = item.ProjectName,
+                    Value = item.ProjectId.ToString()
+                });
+            }
+            ViewBag.projectSelect = items;
+
+            //單據類型
+            ViewBag.Receipt = GetReceiptSelectListItems();
+
+            //費用類型
+            ViewBag.Category = GetCategorySelectListItems();
+
+            return View(result);
+
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Expense expense)
+        {
+            var _expense = _context.Expenses.AsNoTracking().Include(ed => ed.ExpenseDetails).FirstOrDefault(e => e.ExpenseId == expense.ExpenseId);
+            if (_expense is null) return NotFound();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (_expense.ApplicantId != userId || (_expense.Status != ExpenseStatus.Draft && _expense.Status != ExpenseStatus.Returned))
+            {
+                return Forbid();
+            }
+
+            expense.ExpenseDetails ??= new List<ExpenseDetail>();
+
+            for (int i = 0; i < expense.ExpenseDetails.Count; i++)
+            {
+                if (ExpenseReceipt.UniformInvoice == expense.ExpenseDetails[i].ReceiptType && string.IsNullOrWhiteSpace(expense.ExpenseDetails[i].InvoiceNumber))
+                {
+                    ModelState.AddModelError($"ExpenseDetails[{i}].InvoiceNumber", "請輸入統一發票號碼");
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                expense.ApplicantId = _expense.ApplicantId;
+                expense.Status = _expense.Status;
+                expense.IsDeleted = _expense.IsDeleted;
+                expense.CreatedAt = _expense.CreatedAt;
+                _context.Expenses.Update(expense);
+
+                foreach (var item in expense.ExpenseDetails)
+                {
+                    _context.ExpenseDetails.Update(item);
+                }
+
+                _context.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            //專案名稱SelectListItem
+            List<SelectListItem> items = new List<SelectListItem>();
+            var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+            foreach (var item in projectList)
+            {
+                items.Add(new SelectListItem
+                {
+                    Text = item.ProjectName,
+                    Value = item.ProjectId.ToString()
+                });
+            }
+            ViewBag.projectSelect = items;
+
+            //單據類型
+            ViewBag.Receipt = GetReceiptSelectListItems();
+
+            //費用類型
+            ViewBag.Category = GetCategorySelectListItems();
+            return View(expense);
+        }
+
+
+        [Authorize(Roles = "Manager")]
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var expense = _context.Expenses.Find(id);
+
+            if (expense == null) return NotFound();
+
+            ViewBag.username = await GetApplicantNameAsync(expense.ApplicantId);
+            return View(expense);
+        }
+
+
+        [Authorize(Roles = "Manager")]
+        [HttpPost]
+        [ActionName("Delete")]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var expense = _context.Expenses.Find(id);
+            if (expense == null) return NotFound();
+
+            expense.IsDeleted = true;
+            _context.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Review(int id)
+        {
             var expense = _context.Expenses.Find(id);
             if (expense == null) return NotFound();
 
@@ -173,7 +301,7 @@ namespace ExpenseSystem.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Expense expense)
+        public async Task<IActionResult> Review(Expense expense)
         {
             var _expense = _context.Expenses.AsNoTracking().FirstOrDefault(e => e.ExpenseId == expense.ExpenseId);
             var authResult = Getauthorization(_expense);
@@ -213,31 +341,6 @@ namespace ExpenseSystem.Controllers
             return View(expense);
         }
 
-
-        [Authorize(Roles = "Manager")]
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var expense = _context.Expenses.Find(id);
-
-            if (expense == null) return NotFound();
-
-            ViewBag.username = await GetApplicantNameAsync(expense.ApplicantId);
-            return View(expense);
-        }
-
-
-        [Authorize(Roles = "Manager")]
-        [HttpPost]
-        [ActionName("Delete")]
-        public IActionResult DeleteConfirmed(int id)
-        {
-            var expense = _context.Expenses.Find(id);
-
-            expense.IsDeleted = true;
-            _context.SaveChanges();
-            return RedirectToAction("Index");
-        }
 
 
         public async Task<IActionResult> Detail(int id)
