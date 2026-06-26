@@ -206,7 +206,7 @@
                     <td style="text-align: center;">@(itemNumber++)</td>
                     <td><strong>@item.Title</strong></td>
                     <td style="text-align: left; color: #e67e22; font-weight: 500;">$@item.TotalAmount.ToString(format:
-                                                               "N0")
+                                                                                                               "N0")
                     </td>
                     <td style="text-align: left;">@(item.CreatedAt.ToString(format: "yyyy-MM-dd"))</td>
                     <td>@item.Description</td>
@@ -225,7 +225,7 @@
                             </form>
                         }
 
-                        <form method="get" asp-action="Edit" asp-route-id="@item.ExpenseId">
+                        <form method="get" asp-action="Review" asp-route-id="@item.ExpenseId">
                             <button type="submit" class="@(User.IsInRole("Manager") ? "" : "EditBtn")"
                                     data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)">修改</button>
                         </form>
