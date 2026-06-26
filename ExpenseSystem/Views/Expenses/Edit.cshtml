@@ -1,179 +1,157 @@
 @using ExpenseSystem.Models
 @model Expense
 
-<!-- 引入 Google 字型提升質感 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-
-<style>
-    /* 全域基礎與表單外觀 */
-    body {
-        font-family: 'Noto Sans TC', sans-serif;
-        background-color: #f8f9fa;
-        padding: 40px 20px;
-        margin: 0;
-    }
-
-    form {
-        background-color: #ffffff;
-        padding: 40px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        max-width: 500px;
-        margin: 0 auto;
-        box-sizing: border-box;
-    }
-
-    form>div {
-        display: flex;
-        flex-direction: column;
-    }
-
-    h2 {
-        text-align: center;
-        color: #2c3e50;
-        margin-bottom: 25px;
-    }
-
-    /* 輸入欄位通用樣式 */
-    form input,
-    form select {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #cccccc;
-        border-radius: 6px;
-        color: #333333;
-        box-sizing: border-box;
-        margin-bottom: 20px;
-    }
-
-    form input[readonly] {
-        background-color: #f8f9fa;
-        color: #718096;
-        cursor: not-allowed;
-    }
-
-    /* 按鈕並排區塊 */
-    .button-group {
-        display: flex;
-        gap: 12px;
-        margin-top: 15px;
-    }
-
-    .button-group button {
-        flex: 1;
-        padding: 12px;
-        font-size: 16px;
-        font-weight: 500;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        box-sizing: border-box;
-        transition: background-color 0.2s;
-    }
-
-    /* 修改按鈕：實心藍底 + 白字 */
-    .button-group button[type="submit"] {
-        background-color: #3498db;
-        color: #ffffff;
-    }
-
-    .button-group button[type="submit"]:hover {
-        background-color: #2980b9;
-    }
-
-    /* 取消按鈕：淺灰底 + 同色系深灰字 */
-    .btn-cancel {
-        background-color: #edf2f7;
-        color: #718096;
-        text-align: center;
-    }
-
-    .btn-cancel:hover {
-        background-color: #e2e8f0;
-        color: #4a5568;
-    }
-</style>
-
-
 <h2>修改單據</h2>
 <form asp-action="Edit" method="post">
-    <div>
-        @if (User.IsInRole(role: "Manager"))
-        {
-            <input asp-for="ExpenseId" type="hidden" />
-            <label asp-for="ApplicantId">申請人</label>
-            <input asp-for="ApplicantId" value="@ViewBag.username" readonly />
 
-            <label asp-for="Title"></label>
-            <input asp-for="Title" readonly />
-            <p></p>
+    <table>
+        <tbody id="expenseTableBody">
+            <tr>
+                <td colspan="3">主檔
+                    <input asp-for="Status" value="0" type="hidden" />
+                    <input asp-for="ExpenseId" type="hidden" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Title"></label>
+                </td>
+                <td colspan="2">
+                    <input asp-for="Title" readonly />
+                    <span asp-validation-for="Title"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label asp-for="Description"></label>
+                </td>
+                <td colspan="2">
+                    <input asp-for="Description" readonly />
+                    <span asp-validation-for="Description"></span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <button type="button">修 改</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 
-            <label asp-for="Description"></label>
-            <input asp-for="Description" readonly />
-            <p></p>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="10">費用明細</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th>專案</th>
+                <th>發票類型</th>
+                <th>費用類別</th>
+                <th>費用日期</th>
+                <th>發票號碼</th>
+                <th>金額</th>
+                <th>說明</th>
+                <th>商店名稱</th>
+                <th>功 能</th>
+            </tr>
+        </thead>
+        <tbody id="detailTableBody"> @for (int i = 0; i < (Model.ExpenseDetails?.Count ?? 0); i++)
+            {
+                <tr>
+                    <td>
+                        <input asp-for="ExpenseDetails[i].ExpenseDetailId" type="hidden" />
+                        <input asp-for="ExpenseDetails[i].ExpenseId" type="hidden" />
+                    </td>
+                    <td>
+                        <select asp-for="ExpenseDetails[i].ProjectId" asp-items="@ViewBag.projectSelect"
+                                style="pointer-events: none; background-color: #e9ecef;"></select>
+                    </td>
+                    <td>
+                        <select asp-for="ExpenseDetails[i].ReceiptType" asp-items="@ViewBag.Receipt"
+                                style="pointer-events: none; background-color: #e9ecef;"></select>
+                    </td>
+                    <td>
+                        <select asp-for="ExpenseDetails[i].Category" asp-items="@ViewBag.Category"
+                                style="pointer-events: none; background-color: #e9ecef;"></select>
+                    </td>
+                    <td>
+                        <input asp-for="ExpenseDetails[i].ExpenseDate" type="date" readonly />
+                        <span asp-validation-for="ExpenseDetails[i].ExpenseDate"></span>
+                    </td>
+                    <td>
+                        <input asp-for="ExpenseDetails[i].InvoiceNumber" readonly />
+                        <span asp-validation-for="ExpenseDetails[i].InvoiceNumber"></span>
+                    </td>
+                    <td>
+                        <input asp-for="ExpenseDetails[i].Amount" readonly />
+                        <span asp-validation-for="ExpenseDetails[i].Amount"></span>
+                    </td>
+                    <td>
+                        <input asp-for="ExpenseDetails[i].Description" readonly />
+                        <span asp-validation-for="ExpenseDetails[i].Description"></span>
+                    </td>
+                    <td>
+                        <input asp-for="ExpenseDetails[i].StoreName" readonly />
+                        <span asp-validation-for="ExpenseDetails[i].StoreName"></span>
+                    </td>
+                    <td>
+                        <button type="button" class="btn-edit" data-id="ExpenseDetails[i].ExpenseDetailId">修改</button>
+                    </td>
+                </tr>
+            }
 
-            <label asp-for="Status">審核狀態</label>
-            <select asp-for="Status" asp-items="@ViewBag.selectItem" id="statusSelect">
-            </select>
-            <p></p>
-
-            <div id="RejectionDiv">
-                <label asp-for="RejectionReason"></label>
-                <input asp-for="RejectionReason" id="RejectionReason" />
-                <span asp-validation-for="RejectionReason"></span>
-                <p></p>
-            </div>
-            <div asp-validation-summary="ModelOnly"></div>
-        }
-
-        @if (User.IsInRole(role: "Employee"))
-        {
-            <input asp-for="ExpenseId" type="hidden" />
-            <input asp-for="ApplicantId" type="hidden" />
-
-            <label asp-for="Title"></label>
-            <input asp-for="Title" />
-            <span asp-validation-for="Title"></span>
-            <p></p>
-
-            <label asp-for="Description"></label>
-            <input asp-for="Description" />
-            <span asp-validation-for="Description"></span>
-
-            <input asp-for="Status" type="hidden" />
-            <p></p>
-        }
-    </div>
-
-    <!-- 按鈕並排組 -->
-    <div class="button-group">
-        <button type="submit">修改</button>
-        <button asp-action="Index" class="btn-cancel">取消</button>
-    </div>
+            <tr>
+                <td colspan="10">
+                    <div>
+                        <button type="submit">存 檔</button>
+                        <a asp-action="Index" class="btn">取 消</a>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </form>
 
+
 <script>
-    let statusSelect = document.getElementById('statusSelect');
-    const RejectionDiv = document.getElementById('RejectionDiv');
-    const RejectionInput = document.getElementById('RejectionReason');
+    document.addEventListener('DOMContentLoaded', function () {
+        const expenseBtn = document.querySelectorAll('#expenseTableBody button');
+        const detailBtn = document.querySelectorAll('#detailTableBody button');
 
-    function toggleRejectionDiv() {
-        if (!statusSelect) return;
+        expenseBtn.forEach(function (_expenseBtn) {
+            _expenseBtn.addEventListener('click', function () {
+                console.log('主檔')
+                const tbody = this.closest('tbody');
+                const tbodyInputs = tbody.querySelectorAll('input:not([type="hidden"])');
 
-        if (statusSelect.value === 'Rejected') {
-            RejectionDiv.style.display = 'block';
-            RejectionInput.disabled = false;
-        }
-        else {
-            RejectionDiv.style.display = 'none';
-            RejectionInput.disabled = true;
-        }
-    }
+                // 解鎖 input
+                tbodyInputs.forEach(function (input) {
+                    input.removeAttribute('readonly');
+                });
+            });
+        });
 
-    if (statusSelect) {
-        statusSelect.addEventListener('change', toggleRejectionDiv);
-        toggleRejectionDiv();
-    }
+        detailBtn.forEach(function (_detailBtn) {
+            _detailBtn.addEventListener('click', function () {
+                const row = this.closest('tr');
+                const rowInputs = row.querySelectorAll('input:not([type="hidden"])');
+                const rowSelects = row.querySelectorAll('select');
+
+                // 解鎖 input
+                rowInputs.forEach(function (input) {
+                    input.removeAttribute('readonly');
+                });
+
+                // 解鎖 select
+                rowSelects.forEach(function (select) {
+                    select.style.pointerEvents = '';
+                    select.style.backgroundColor = '#ffffff';
+                    select.style.color = '#000000';
+                });
+            });
+
+        });
+    });
+
 </script>
