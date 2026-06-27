@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 
 namespace ExpenseSystem.Controllers
@@ -35,8 +36,8 @@ namespace ExpenseSystem.Controllers
 
             if (User.IsInRole(role: "Manager"))
             {
-                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft).Include(ed => ed.ExpenseDetails).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
-                TotalPages = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft).Count();
+                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft && e.Status != ExpenseStatus.Returned).Include(ed => ed.ExpenseDetails).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
+                TotalPages = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft && e.Status != ExpenseStatus.Returned).Count();
             }
             else
             {
@@ -216,8 +217,11 @@ namespace ExpenseSystem.Controllers
 
             if (ModelState.IsValid)
             {
+                if (ExpenseStatus.Returned == expense.Status)
+                {
+                    _expense.Status = ExpenseStatus.Submitted;
+                }
                 expense.ApplicantId = _expense.ApplicantId;
-                expense.Status = _expense.Status;
                 expense.IsDeleted = _expense.IsDeleted;
                 expense.CreatedAt = _expense.CreatedAt;
                 _context.Expenses.Update(expense);
@@ -283,7 +287,7 @@ namespace ExpenseSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Review(int id)
         {
-            var expense = _context.Expenses.Find(id);
+            var expense = _context.Expenses.AsNoTracking().Include(ed => ed.ExpenseDetails).ThenInclude(p => p.Project).FirstOrDefault(e => e.ExpenseId == id);
             if (expense == null) return NotFound();
 
             var authResult = Getauthorization(expense);
@@ -296,6 +300,12 @@ namespace ExpenseSystem.Controllers
                 ViewBag.selectItem = GetStatusSelectListItems();
             }
 
+            //單據類型
+            ViewBag.Receipt = GetReceiptSelectListItems();
+
+            //費用類型
+            ViewBag.Category = GetCategorySelectListItems();
+
             return View(expense);
         }
 
@@ -304,7 +314,7 @@ namespace ExpenseSystem.Controllers
         public async Task<IActionResult> Review(Expense expense)
         {
             var _expense = _context.Expenses.AsNoTracking().FirstOrDefault(e => e.ExpenseId == expense.ExpenseId);
-            var authResult = Getauthorization(_expense);
+            var authResult = Getauthorization(expense);
 
             if (authResult != null) return authResult;
 
@@ -315,16 +325,8 @@ namespace ExpenseSystem.Controllers
 
             if (ModelState.IsValid)
             {
-                if (User.IsInRole("Manager"))
-                {
-                    expense.ApplicantId = await GetApplicantIdAsync(expense.ApplicantId);
-                }
-
-                if (!User.IsInRole("Manager") && expense.Status == ExpenseStatus.Returned)
-                {
-                    expense.Status = ExpenseStatus.Submitted;
-                }
-
+                expense.ApplicantId = _expense.ApplicantId;
+                expense.IsDeleted = _expense.IsDeleted;
                 expense.CreatedAt = _expense.CreatedAt;
                 _context.Expenses.Update(expense);
                 _context.SaveChanges();
@@ -333,10 +335,7 @@ namespace ExpenseSystem.Controllers
 
             }
 
-            if (User.IsInRole(role: "Manager"))
-            {
-                ViewBag.selectItem = GetStatusSelectListItems();
-            }
+            ViewBag.selectItem = GetStatusSelectListItems();
 
             return View(expense);
         }
@@ -435,7 +434,6 @@ namespace ExpenseSystem.Controllers
 
         private IActionResult Getauthorization(Expense expense)
         {
-
             bool isManager = User.IsInRole("Manager");
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
