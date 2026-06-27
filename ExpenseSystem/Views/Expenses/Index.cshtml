@@ -206,7 +206,7 @@
                     <td style="text-align: center;">@(itemNumber++)</td>
                     <td><strong>@item.Title</strong></td>
                     <td style="text-align: left; color: #e67e22; font-weight: 500;">$@item.TotalAmount.ToString(format:
-                                                                                                               "N0")
+                                                                                                                                                                                                                                                                                       "N0")
                     </td>
                     <td style="text-align: left;">@(item.CreatedAt.ToString(format: "yyyy-MM-dd"))</td>
                     <td>@item.Description</td>
@@ -223,15 +223,20 @@
                                         data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)" data-id="@item.ExpenseId"
                                         onclick="return confirm('確定要送審？')">送審</button>
                             </form>
+
+                            <form method="get" asp-action="Edit" asp-route-id="@item.ExpenseId">
+                                <button type="submit" class="EditBtn"
+                                        data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)">修改</button>
+                            </form>
                         }
 
-                        <form method="get" asp-action="Review" asp-route-id="@item.ExpenseId">
-                            <button type="submit" class="@(User.IsInRole("Manager") ? "" : "EditBtn")"
-                                    data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)">修改</button>
-                        </form>
 
                         @if (User.IsInRole("Manager"))
                         {
+                            <form method="get" asp-action="Review" asp-route-id="@item.ExpenseId">
+                                <button type="submit" data-statusBtn="@EnumExtensions.GetDisplayName(@item.Status)">修改</button>
+                            </form>
+
                             <form method="get" asp-action="Delete" asp-route-id="@item.ExpenseId">
                                 <button type="submit">刪除</button>
                             </form>
@@ -272,8 +277,6 @@
         if (btn.dataset.statusbtn.trim() === "退／補件" && btn.classList.contains("SubmitButton")) {
             btn.style.display = 'none';
         }
-        {
 
-        }
     });
 </script>
