@@ -24,7 +24,7 @@ namespace ExpenseSystem.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public List<ExpenseDetail>? ExpenseDetails { get; set; }
+        public List<ExpenseDetail> ExpenseDetails { get; set; } = new();
 
         [NotMapped]
         public decimal TotalAmount => ExpenseDetails?.Sum(ed => ed.Amount) ?? 0;
@@ -35,12 +35,16 @@ namespace ExpenseSystem.Models
     {
         [Display(Name = "草稿")]
         Draft,
+
         [Display(Name = "審核中")]
         Submitted,
+
         [Display(Name = "退／補件")]
         Returned,
+
         [Display(Name = "已核准")]
         Approved,
+
         [Display(Name = "已拒絕")]
         Rejected
     }
