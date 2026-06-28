@@ -297,7 +297,7 @@ namespace ExpenseSystem.Controllers
             {
                 ViewBag.selectItem = GetStatusSelectListItems();
             }
-            var count = expense.ExpenseDetails?.Count;
+
             return View(expense);
         }
 
@@ -420,8 +420,6 @@ namespace ExpenseSystem.Controllers
 
             return items;
         }
-
-
 
     }
 }
