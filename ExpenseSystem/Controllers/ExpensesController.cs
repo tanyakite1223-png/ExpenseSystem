@@ -168,24 +168,28 @@ namespace ExpenseSystem.Controllers
                 return Forbid();
             }
 
-            //專案名稱SelectListItem
-            List<SelectListItem> items = new List<SelectListItem>();
-            var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
-            foreach (var item in projectList)
+            if (User.IsInRole(role: "Employee"))
             {
-                items.Add(new SelectListItem
+                //專案名稱SelectListItem
+                List<SelectListItem> items = new List<SelectListItem>();
+                var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+                foreach (var item in projectList)
                 {
-                    Text = item.ProjectName,
-                    Value = item.ProjectId.ToString()
-                });
+                    items.Add(new SelectListItem
+                    {
+                        Text = item.ProjectName,
+                        Value = item.ProjectId.ToString()
+                    });
+                }
+                ViewBag.projectSelect = items;
+
+                //單據類型
+                ViewBag.Receipt = GetReceiptSelectListItems();
+
+                //費用類型
+                ViewBag.Category = GetCategorySelectListItems();
             }
-            ViewBag.projectSelect = items;
 
-            //單據類型
-            ViewBag.Receipt = GetReceiptSelectListItems();
-
-            //費用類型
-            ViewBag.Category = GetCategorySelectListItems();
 
             return View(result);
 
@@ -219,7 +223,7 @@ namespace ExpenseSystem.Controllers
             {
                 if (ExpenseStatus.Returned == expense.Status)
                 {
-                    _expense.Status = ExpenseStatus.Submitted;
+                    expense.Status = ExpenseStatus.Submitted;
                 }
                 expense.ApplicantId = _expense.ApplicantId;
                 expense.IsDeleted = _expense.IsDeleted;
