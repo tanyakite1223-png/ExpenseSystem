@@ -1,158 +1,83 @@
 @using ExpenseSystem.Models
 @model Expense
 
-<!-- 引入 Google 字型提升質感 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<h2>審核單據</h2>
+<form asp-action="Review" method="POST">
+    <input asp-for="ExpenseId" type="hidden" />
+    <label asp-for="ApplicantId">申請人</label>
+    <input asp-for="ApplicantId" value="@ViewBag.username" readonly />
 
-<style>
-    /* 全域基礎與表單外觀 */
-    body {
-        font-family: 'Noto Sans TC', sans-serif;
-        background-color: #f8f9fa;
-        padding: 40px 20px;
-        margin: 0;
-    }
+    <label asp-for="Title"></label>
+    <input asp-for="Title" readonly />
 
-    form {
-        background-color: #ffffff;
-        padding: 40px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        max-width: 500px;
-        margin: 0 auto;
-        box-sizing: border-box;
-    }
+    <label asp-for="Description"></label>
+    <input asp-for="Description" readonly />
 
-    form>div {
-        display: flex;
-        flex-direction: column;
-    }
+    <label asp-for="Status">審核狀態</label>
+    <select asp-for="Status" asp-items="@ViewBag.selectItem" id="statusSelect">
+    </select>
 
-    h2 {
-        text-align: center;
-        color: #2c3e50;
-        margin-bottom: 25px;
-    }
-
-    /* 輸入欄位通用樣式 */
-    form input,
-    form select {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #cccccc;
-        border-radius: 6px;
-        color: #333333;
-        box-sizing: border-box;
-        margin-bottom: 20px;
-    }
-
-    form input[readonly] {
-        background-color: #f8f9fa;
-        color: #718096;
-        cursor: not-allowed;
-    }
-
-    /* 按鈕並排區塊 */
-    .button-group {
-        display: flex;
-        gap: 12px;
-        margin-top: 15px;
-    }
-
-    .button-group button {
-        flex: 1;
-        padding: 12px;
-        font-size: 16px;
-        font-weight: 500;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        box-sizing: border-box;
-        transition: background-color 0.2s;
-    }
-
-    /* 修改按鈕：實心藍底 + 白字 */
-    .button-group button[type="submit"] {
-        background-color: #3498db;
-        color: #ffffff;
-    }
-
-    .button-group button[type="submit"]:hover {
-        background-color: #2980b9;
-    }
-
-    /* 取消按鈕：淺灰底 + 同色系深灰字 */
-    .btn-cancel {
-        background-color: #edf2f7;
-        color: #718096;
-        text-align: center;
-    }
-
-    .btn-cancel:hover {
-        background-color: #e2e8f0;
-        color: #4a5568;
-    }
-</style>
-
-
-<h2>修改單據</h2>
-<form asp-action="Review" method="post">
-    <div>
-        @if (User.IsInRole(role: "Manager"))
-        {
-            <input asp-for="ExpenseId" type="hidden" />
-            <label asp-for="ApplicantId">申請人</label>
-            <input asp-for="ApplicantId" value="@ViewBag.username" readonly />
-
-            <label asp-for="Title"></label>
-            <input asp-for="Title" readonly />
-            <p></p>
-
-            <label asp-for="Description"></label>
-            <input asp-for="Description" readonly />
-            <p></p>
-
-            <label asp-for="Status">審核狀態</label>
-            <select asp-for="Status" asp-items="@ViewBag.selectItem" id="statusSelect">
-            </select>
-            <p></p>
-
-            <div id="RejectionDiv">
-                <label asp-for="RejectionReason"></label>
-                <input asp-for="RejectionReason" id="RejectionReason" />
-                <span asp-validation-for="RejectionReason"></span>
-                <p></p>
-            </div>
-            <div asp-validation-summary="ModelOnly"></div>
-        }
-
-        @if (User.IsInRole(role: "Employee"))
-        {
-            <input asp-for="ExpenseId" type="hidden" />
-            <input asp-for="ApplicantId" type="hidden" />
-
-            <label asp-for="Title"></label>
-            <input asp-for="Title" />
-            <span asp-validation-for="Title"></span>
-            <p></p>
-
-            <label asp-for="Description"></label>
-            <input asp-for="Description" />
-            <span asp-validation-for="Description"></span>
-
-            <input asp-for="Status" type="hidden" />
-            <p></p>
-        }
+    <div id="RejectionDiv">
+        <label asp-for="RejectionReason"></label>
+        <input asp-for="RejectionReason" id="RejectionReason" />
+        <span asp-validation-for="RejectionReason"></span>
     </div>
+    <div asp-validation-summary="ModelOnly"></div>
 
-    <!-- 按鈕並排組 -->
-    <div class="button-group">
+    <div>
         <button type="submit">修改</button>
-        <button asp-action="Index" class="btn-cancel">取消</button>
+        <a asp-action="Index">取消</a>
     </div>
 </form>
+
+<table>
+    <thead>
+        <tr>
+            <th colspan="9">費用明細</th>
+        </tr>
+        <th>專案</th>
+        <th>發票類型</th>
+        <th>費用類別</th>
+        <th>費用日期</th>
+        <th>發票號碼</th>
+        <th>金額</th>
+        <th>說明</th>
+        <th>商店名稱</th>
+    </tr>
+</thead>
+<tbody id="detailTableBody"> @for (int i = 0; i < (Model.ExpenseDetails?.Count ?? 0); i++)
+    {
+        <tr>
+
+            <td>
+                <input type="text" value="@Model.ExpenseDetails[i].Project?.ProjectName" readonly />
+            </td>
+            <td>
+                <input type="text" value="@Model.ExpenseDetails[i].ReceiptType.GetDisplayName()" readonly />
+            </td>
+            <td>
+                <input type="text" value="@Model.ExpenseDetails[i].Category.GetDisplayName()" readonly />
+            </td>
+            <td>
+                <input type="text" value="@Model.ExpenseDetails[i].ExpenseDate" type="date" readonly />
+            </td>
+            <td>
+                <input type="text" value="@Model.ExpenseDetails[i].InvoiceNumber" readonly />
+            </td>
+            <td>
+                <input type="text" value="@Model.ExpenseDetails[i].Amount" readonly />
+            </td>
+            <td>
+                <input type="text" value="@Model.ExpenseDetails[i].Description" readonly />
+            </td>
+            <td>
+                <input type="text" value="@Model.ExpenseDetails[i].StoreName" readonly />
+            </td>
+        </tr>
+    }
+</tbody>
+</table>
+
 
 <script>
     let statusSelect = document.getElementById('statusSelect');
