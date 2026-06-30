@@ -3,7 +3,6 @@
 
 <h2>修改單據</h2>
 <form asp-action="Edit" method="post">
-
     <table>
         <tbody id="expenseTableBody">
             <tr>
@@ -41,7 +40,7 @@
     <table>
         <thead>
             <tr>
-                <th colspan="10">費用明細</th>
+                <th colspan="11">費用明細</th>
             </tr>
             <tr>
                 <th></th>
@@ -54,11 +53,12 @@
                 <th>說明</th>
                 <th>商店名稱</th>
                 <th>功 能</th>
+                <th></th>
             </tr>
         </thead>
         <tbody id="detailTableBody"> @for (int i = 0; i < (Model.ExpenseDetails?.Count ?? 0); i++)
             {
-                <tr>
+                <tr class="detail-row">
                     <td>
                         <input asp-for="ExpenseDetails[i].ExpenseDetailId" type="hidden" />
                         <input asp-for="ExpenseDetails[i].ExpenseId" type="hidden" />
@@ -98,26 +98,22 @@
                     <td>
                         <button type="button" class="btn-edit" data-id="ExpenseDetails[i].ExpenseDetailId">修改</button>
                     </td>
+                    <td><button type="button" class="deleteRow">－ 移除</button></td>
                 </tr>
             }
-
-            <tr>
-                <td colspan="10">
-                    <div>
-                        <button type="submit">存 檔</button>
-                        <a asp-action="Index" class="btn">取 消</a>
-                    </div>
-                </td>
-            </tr>
         </tbody>
     </table>
+    <div><button type="button" class="btn-addDetail">+ 新增費用明細</button></div>
+    <div>
+        <button type="submit">存 檔</button>
+        <a asp-action="Index" class="btn">取 消</a>
+    </div>
 </form>
 
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const expenseBtn = document.querySelectorAll('#expenseTableBody button');
-        const detailBtn = document.querySelectorAll('#detailTableBody button');
 
         expenseBtn.forEach(function (_expenseBtn) {
             _expenseBtn.addEventListener('click', function () {
@@ -132,25 +128,87 @@
             });
         });
 
-        detailBtn.forEach(function (_detailBtn) {
-            _detailBtn.addEventListener('click', function () {
-                const row = this.closest('tr');
-                const rowInputs = row.querySelectorAll('input:not([type="hidden"])');
-                const rowSelects = row.querySelectorAll('select');
 
-                // 解鎖 input
+        document.getElementById('detailTableBody').addEventListener('click', function (e) {
+            const row = e.target.closest('tr');
+            const rowInputs = row.querySelectorAll('input:not([type="hidden"])');
+            const rowSelects = row.querySelectorAll('select');
+
+            // 解鎖
+            if (e.target.classList.contains('btn-edit')) {
+
                 rowInputs.forEach(function (input) {
                     input.removeAttribute('readonly');
                 });
 
-                // 解鎖 select
                 rowSelects.forEach(function (select) {
                     select.style.pointerEvents = '';
                     select.style.backgroundColor = '#ffffff';
                     select.style.color = '#000000';
                 });
-            });
+            }
 
+
+            //刪除列
+            if (e.target.classList.contains('deleteRow')) {
+                if (row) {
+                    row.remove();
+                }
+            }
+        });
+
+       
+
+        //新增一筆明細空白列
+        const addDetailRowBtn = document.querySelector('.btn-addDetail');
+
+        addDetailRowBtn.addEventListener('click', function () {
+            const rowCount = document.querySelectorAll('.detail-row').length;
+            const tableBody = document.getElementById('detailTableBody');
+            const project = document.querySelector('select[name^="ExpenseDetails"][name$=".ProjectId"]');
+            const projectSelectOptions = project ? project.innerHTML : '';
+
+            const receipt = document.querySelector('select[name^="ExpenseDetails"][name$=".ReceiptType"]');
+            const receiptSelectOptions = receipt ? receipt.innerHTML : '';
+
+            const category = document.querySelector('select[name^="ExpenseDetails"][name$=".Category"]');
+            const categorySelectOptions = category ? category.innerHTML : '';
+
+            const newRowHtml = `<tr class="detail-row">
+                    <td>
+                        <input name="ExpenseDetails[${rowCount}].ExpenseDetailId" type="hidden" value="0" />
+                        <input name="ExpenseDetails[${rowCount}].ExpenseId" type="hidden"  value="@Model.ExpenseId" />
+                    </td>
+                    <td>
+                        <select name="ExpenseDetails[${rowCount}].ProjectId" >${projectSelectOptions}</select>
+                    </td>
+                    <td>
+                        <select name="ExpenseDetails[${rowCount}].ReceiptType">${receiptSelectOptions}</select>
+                    </td>
+                    <td>
+                        <select name="ExpenseDetails[${rowCount}].Category">${categorySelectOptions}</select>
+                    </td>
+                    <td>
+                        <input name="ExpenseDetails[${rowCount}].ExpenseDate" type="date"  />
+                    </td>
+                    <td>
+                        <input name="ExpenseDetails[${rowCount}].InvoiceNumber"  />
+                    </td>
+                    <td>
+                        <input name="ExpenseDetails[${rowCount}].Amount"  />
+                    </td>
+                    <td>
+                        <input name="ExpenseDetails[${rowCount}].Description"  />
+                    </td>
+                    <td>
+                        <input name="ExpenseDetails[${rowCount}].StoreName"  />
+                    </td>
+                    <td>
+                        <button type="button" class="deleteRow">－ 移除</button>
+                    </td>
+                </tr> `;
+
+            document.getElementById('detailTableBody').insertAdjacentHTML('beforeend', newRowHtml);
         });
     });
 

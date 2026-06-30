@@ -4,66 +4,68 @@
 
 <h2>新增單據</h2>
 <form asp-action="Create" method="post">
-    <div>
-        <p>主檔</p>
-        <hr>
-        <label asp-for="Expense.Title"></label>
-        <input asp-for="Expense.Title" />
-        <span asp-validation-for="Expense.Title"></span>
-        <p></p> <label asp-for="Expense.Description"></label>
-        <input asp-for="Expense.Description" />
-        <span asp-validation-for="Expense.Description"></span>
-        <p></p> <input asp-for="Expense.Status" value="0" type="hidden" />
-        <p></p>
-        <p></p>
+    <p>主檔</p>
+    <hr>
+    <label asp-for="Expense.Title"></label>
+    <input asp-for="Expense.Title" />
+    <span asp-validation-for="Expense.Title"></span>
+    <p></p> <label asp-for="Expense.Description"></label>
+    <input asp-for="Expense.Description" />
+    <span asp-validation-for="Expense.Description"></span>
+    <p></p> <input asp-for="Expense.Status" value="0" type="hidden" />
+    <p></p>
+    <p></p>
 
-        <p>費用明細</p>
-        <hr>
+    <p>費用明細</p>
+    <hr>
+    <div class="detail">
         @for (int i = 0; i < ViewBag.expenseDetails; i++)
         {
-            <label asp-for="ExpenseDetails[i].ProjectId"></label>
-            <select asp-for="ExpenseDetails[i].ProjectId" asp-items="@ViewBag.projectSelect" id="projectSelect">
-            </select>
-            <p></p>
+            <div class="detail-row">
+                <label asp-for="ExpenseDetails[i].ProjectId"></label>
+                <select asp-for="ExpenseDetails[i].ProjectId" asp-items="@ViewBag.projectSelect" id="projectSelect">
+                </select>
+                <p></p>
 
-            <label asp-for="ExpenseDetails[i].ReceiptType"></label>
-            <select asp-for="ExpenseDetails[i].ReceiptType" asp-items="@ViewBag.Receipt" id="receiptSelect">
-            </select>　　　　
+                <label asp-for="ExpenseDetails[i].ReceiptType"></label>
+                <select asp-for="ExpenseDetails[i].ReceiptType" asp-items="@ViewBag.Receipt" id="receiptSelect">
+                </select>　　　　
 
-            <label asp-for="ExpenseDetails[i].Category"></label>
-            <select asp-for="ExpenseDetails[i].Category" asp-items="@ViewBag.Category" id="categorySelect">
-            </select>
-            <p></p>
+                <label asp-for="ExpenseDetails[i].Category"></label>
+                <select asp-for="ExpenseDetails[i].Category" asp-items="@ViewBag.Category" id="categorySelect">
+                </select>
+                <p></p>
 
-            <label asp-for="ExpenseDetails[i].ExpenseDate"></label>
-            <input asp-for="ExpenseDetails[i].ExpenseDate" type="date" />
-            <span asp-validation-for="ExpenseDetails[i].ExpenseDate"></span>
-            <p></p>
+                <label asp-for="ExpenseDetails[i].ExpenseDate"></label>
+                <input asp-for="ExpenseDetails[i].ExpenseDate" type="date" />
+                <span asp-validation-for="ExpenseDetails[i].ExpenseDate"></span>
+                <p></p>
 
-            <label asp-for="ExpenseDetails[i].InvoiceNumber"></label>
-            <input asp-for="ExpenseDetails[i].InvoiceNumber" />
-            <span asp-validation-for="ExpenseDetails[i].InvoiceNumber"></span>
-            <p></p>
+                <label asp-for="ExpenseDetails[i].InvoiceNumber"></label>
+                <input asp-for="ExpenseDetails[i].InvoiceNumber" />
+                <span asp-validation-for="ExpenseDetails[i].InvoiceNumber"></span>
+                <p></p>
 
-            <label asp-for="ExpenseDetails[i].Amount"></label>
-            <input asp-for="ExpenseDetails[i].Amount" />
-            <span asp-validation-for="ExpenseDetails[i].Amount"></span>
-            <p></p>
+                <label asp-for="ExpenseDetails[i].Amount"></label>
+                <input asp-for="ExpenseDetails[i].Amount" />
+                <span asp-validation-for="ExpenseDetails[i].Amount"></span>
+                <p></p>
 
-            <label asp-for="ExpenseDetails[i].Description"></label>
-            <input asp-for="ExpenseDetails[i].Description" />
-            <span asp-validation-for="ExpenseDetails[i].Description"></span>
-            <p></p>
+                <label asp-for="ExpenseDetails[i].Description"></label>
+                <input asp-for="ExpenseDetails[i].Description" />
+                <span asp-validation-for="ExpenseDetails[i].Description"></span>
+                <p></p>
 
-            <label asp-for="ExpenseDetails[i].StoreName"></label>
-            <input asp-for="ExpenseDetails[i].StoreName" />
-            <span asp-validation-for="ExpenseDetails[i].StoreName"></span>
-            <p></p>
-            <p></p>
-            <p></p>
+                <label asp-for="ExpenseDetails[i].StoreName"></label>
+                <input asp-for="ExpenseDetails[i].StoreName" />
+                <span asp-validation-for="ExpenseDetails[i].StoreName"></span>
+                <button type="button" class="deleteRow">－ 移除</button>
+            </div>
         }
 
     </div>
+
+    <div><button type="button" class="btn-addDetail">+ 新增費用明細</button></div>
     <!-- 按鈕並排組 -->
     <div class="button-group">
         <button type="submit">新增</button>
@@ -73,10 +75,72 @@
 
 <script>
     const buttons = document.querySelectorAll(".ArchiveBtn");
-
     buttons.forEach(function (btn) {
         if (btn.dataset.statusbtn.trim() === "一般支出") {
             btn.style.display = 'none';
         }
     });
+
+
+    const addDetailRowBtn = document.querySelector('.btn-addDetail');
+    addDetailRowBtn.addEventListener('click', function () {
+        const rowCount = document.querySelectorAll('.detail-row').length;
+
+        const project = document.querySelector('select[name^="ExpenseDetails"][name$=".ProjectId"]');
+        const projectSelectOptions = project ? project.innerHTML : '';
+
+        const receipt = document.querySelector('select[name^="ExpenseDetails"][name$=".ReceiptType"]');
+        const receiptSelectOptions = receipt ? receipt.innerHTML : '';
+
+        const category = document.querySelector('select[name^="ExpenseDetails"][name$=".Category"]');
+        const categorySelectOptions = category ? category.innerHTML : '';
+
+        const newRowHtml = ` <div class="detail-row">
+                <label name="ExpenseDetails[${rowCount}].ProjectId"></label>
+                <select name="ExpenseDetails[${rowCount}].ProjectId" >${projectSelectOptions}</select>
+                <p></p>
+
+                <label name="ExpenseDetails[${rowCount}].ReceiptType"></label>
+                <select name="ExpenseDetails[${rowCount}].ReceiptType">${receiptSelectOptions}</select>
+
+                <label name="ExpenseDetails[${rowCount}].Category"></label>
+                <select name="ExpenseDetails[${rowCount}].Category">${categorySelectOptions}</select>
+                <p></p>
+
+                <label name="ExpenseDetails[${rowCount}].ExpenseDate"></label>
+                <input name="ExpenseDetails[${rowCount}].ExpenseDate" type="date" />
+                <p></p>
+
+                <label name="ExpenseDetails[${rowCount}].InvoiceNumber"></label>
+                <input name="ExpenseDetails[${rowCount}].InvoiceNumber" />
+                <p></p>
+
+                <label name="ExpenseDetails[${rowCount}].Amount"></label>
+                <input name="ExpenseDetails[${rowCount}].Amount" />
+                <p></p>
+
+                <label name="ExpenseDetails[${rowCount}].Description"></label>
+                <input name="ExpenseDetails[${rowCount}].Description" />
+                <p></p>
+
+                <label name="ExpenseDetails[${rowCount}].StoreName"></label>
+                <input name="ExpenseDetails[${rowCount}].StoreName" />              
+                <button type="button" class="deleteRow">－ 移除</button>
+            </div> `;
+
+        document.querySelector('.detail').insertAdjacentHTML('beforeend', newRowHtml);
+    });
+
+
+    //刪除列
+    document.querySelector('.detail').addEventListener('click', function (e) {
+        const row = e.target.closest('.detail-row');
+
+        if (e.target.classList.contains('deleteRow')) {
+            if (row) {
+                row.remove();
+            }
+        }
+    });
+
 </script>
