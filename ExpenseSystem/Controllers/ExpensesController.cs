@@ -74,10 +74,7 @@ namespace ExpenseSystem.Controllers
             var viewModel = new ExpenseWithDetailsViewModel()
             {
                 Expense = new Expense(),
-                ExpenseDetails = [
-                    new ExpenseDetail(),
-                    new ExpenseDetail()
-                ]
+                ExpenseDetails = [new ExpenseDetail()]
             };
 
             ViewBag.expenseDetails = viewModel.ExpenseDetails.Count;
@@ -230,10 +227,14 @@ namespace ExpenseSystem.Controllers
                 expense.CreatedAt = _expense.CreatedAt;
                 _context.Expenses.Update(expense);
 
-                foreach (var item in expense.ExpenseDetails)
-                {
-                    _context.ExpenseDetails.Update(item);
-                }
+                var dbIds = _expense.ExpenseDetails.Select(ed => ed.ExpenseDetailId);
+                var postIds = expense.ExpenseDetails.Where(ed => ed.ExpenseDetailId > 0)
+                                                    .Select(ed => ed.ExpenseDetailId);
+
+                //DB 有、但 POST 沒傳來的(delete)
+                var toDeleteIds = dbIds.Except(postIds);
+                var _toDeletes = _context.ExpenseDetails.Where(ed => toDeleteIds.Contains(ed.ExpenseDetailId));
+                _context.ExpenseDetails.RemoveRange(_toDeletes);
 
                 _context.SaveChanges();
                 return RedirectToAction("Index");
