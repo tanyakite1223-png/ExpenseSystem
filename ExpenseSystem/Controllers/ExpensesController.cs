@@ -266,11 +266,12 @@ namespace ExpenseSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var expense = _context.Expenses.Find(id);
+            var expense = _context.Expenses.AsNoTracking().Include(ed => ed.ExpenseDetails).ThenInclude(p => p.Project).FirstOrDefault(e => e.ExpenseId == id);
 
             if (expense == null) return NotFound();
 
             ViewBag.username = await GetApplicantNameAsync(expense.ApplicantId);
+
             return View(expense);
         }
 
