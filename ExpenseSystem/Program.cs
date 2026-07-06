@@ -8,7 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(
+        _ => "此欄位為必填");
+    options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(
+        (_, _) => "請輸入有效的數字");
+});
+
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ExpenseDbContext>()
     .AddDefaultTokenProviders();

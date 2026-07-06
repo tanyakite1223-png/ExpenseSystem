@@ -18,6 +18,7 @@ namespace ExpenseSystem.Models
         public DateOnly? ExpenseDate { get; set; }
 
         [Display(Name = "商店名稱")]
+        [Required(ErrorMessage = "商店名稱必填")]
         public string StoreName { get; set; }
 
         [Display(Name = "發票編號")]
@@ -25,10 +26,11 @@ namespace ExpenseSystem.Models
 
         [Display(Name = "金額")]
         [Column(TypeName = "decimal(18,2)")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "金額必填且需大於0")]
         public decimal Amount { get; set; }
 
         [Display(Name = "描述內容")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         // FK — 存數字(指向哪張報銷單)
         public int ExpenseId { get; set; }

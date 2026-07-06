@@ -8,11 +8,11 @@ namespace ExpenseSystem.Models
         public int ExpenseId { get; set; }
 
         [Display(Name = "標題")]
-        [Required(ErrorMessage = "Title必填")]
+        [Required(ErrorMessage = "標題必填")]
         public string Title { get; set; } = string.Empty;
 
         [Display(Name = "描述內容")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Display(Name = "拒絕原因")]
         public string? RejectionReason { get; set; }
