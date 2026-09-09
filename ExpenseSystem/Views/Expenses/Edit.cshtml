@@ -117,7 +117,6 @@
 
         expenseBtn.forEach(function (_expenseBtn) {
             _expenseBtn.addEventListener('click', function () {
-                console.log('主檔')
                 const tbody = this.closest('tbody');
                 const tbodyInputs = tbody.querySelectorAll('input:not([type="hidden"])');
 

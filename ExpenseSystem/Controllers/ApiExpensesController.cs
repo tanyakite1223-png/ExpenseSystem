@@ -1,10 +1,12 @@
 using ExpenseSystem.Data;
 using ExpenseSystem.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace ExpenseSystem.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ApiExpensesController : ControllerBase
