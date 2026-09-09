@@ -7,18 +7,18 @@ namespace ExpenseSystem.Controllers
 {
     public class ProjectController : Controller
     {
-        private readonly ExpenseDbContext _Context;
+        private readonly ExpenseDbContext _context;
 
         public ProjectController(ExpenseDbContext context)
         {
-            _Context = context;
+            _context = context;
         }
 
         [Authorize(Roles = "Manager")]
         public IActionResult Index()
         {
             var projectList = new List<Project>();
-            projectList = _Context.Projects.Where(p => p.IsActive == true).ToList();
+            projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
             return View(projectList);
 
         }
@@ -28,7 +28,7 @@ namespace ExpenseSystem.Controllers
         [HttpPost]
         public IActionResult Archive(int id)
         {
-            var projectResult = _Context.Projects.Find(id);
+            var projectResult = _context.Projects.Find(id);
 
             if (projectResult == null) return NotFound();
 
@@ -36,8 +36,8 @@ namespace ExpenseSystem.Controllers
             {
                 projectResult.IsActive = false;
 
-                _Context.Update(projectResult);
-                _Context.SaveChanges();
+                _context.Update(projectResult);
+                _context.SaveChanges();
             }
             return RedirectToAction("Index");
 
