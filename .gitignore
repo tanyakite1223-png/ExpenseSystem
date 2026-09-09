@@ -481,3 +481,8 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 tmpclaude-*
+
+# Claude Code 工作檔
+CLAUDE.md
+AGENTS.md
+.claude/
