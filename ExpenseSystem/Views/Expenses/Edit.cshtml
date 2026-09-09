@@ -1,214 +1,154 @@
 @using ExpenseSystem.Models
 @model Expense
 
-<h2>修改單據</h2>
-<form asp-action="Edit" method="post">
-    <table>
-        <tbody id="expenseTableBody">
-            <tr>
-                <td colspan="3">主檔
-                    <input asp-for="Status" type="hidden" />
-                    <input asp-for="ExpenseId" type="hidden" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label asp-for="Title"></label>
-                </td>
-                <td colspan="2">
-                    <input asp-for="Title" readonly />
-                    <span asp-validation-for="Title"></span>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label asp-for="Description"></label>
-                </td>
-                <td colspan="2">
-                    <input asp-for="Description" readonly />
-                    <span asp-validation-for="Description"></span>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="3">
-                    <button type="button">修 改</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<link rel="stylesheet" href="~/css/expenses.css" />
 
-    <table>
-        <thead>
-            <tr>
-                <th colspan="11">費用明細</th>
-            </tr>
-            <tr>
-                <th></th>
-                <th>專案</th>
-                <th>發票類型</th>
-                <th>費用類別</th>
-                <th>費用日期</th>
-                <th>發票號碼</th>
-                <th>金額</th>
-                <th>說明</th>
-                <th>商店名稱</th>
-                <th>功 能</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody id="detailTableBody"> @for (int i = 0; i < (Model.ExpenseDetails?.Count ?? 0); i++)
-            {
-                <tr class="detail-row">
-                    <td>
-                        <input asp-for="ExpenseDetails[i].ExpenseDetailId" type="hidden" />
-                        <input asp-for="ExpenseDetails[i].ExpenseId" type="hidden" />
-                    </td>
-                    <td>
-                        <select asp-for="ExpenseDetails[i].ProjectId" asp-items="@ViewBag.projectSelect"
-                                style="pointer-events: none; background-color: #e9ecef;"></select>
-                    </td>
-                    <td>
-                        <select asp-for="ExpenseDetails[i].ReceiptType" asp-items="@ViewBag.Receipt"
-                                style="pointer-events: none; background-color: #e9ecef;"></select>
-                    </td>
-                    <td>
-                        <select asp-for="ExpenseDetails[i].Category" asp-items="@ViewBag.Category"
-                                style="pointer-events: none; background-color: #e9ecef;"></select>
-                    </td>
-                    <td>
-                        <input asp-for="ExpenseDetails[i].ExpenseDate" type="date" readonly />
-                        <span asp-validation-for="ExpenseDetails[i].ExpenseDate"></span>
-                    </td>
-                    <td>
-                        <input asp-for="ExpenseDetails[i].InvoiceNumber" readonly />
-                        <span asp-validation-for="ExpenseDetails[i].InvoiceNumber"></span>
-                    </td>
-                    <td>
-                        <input asp-for="ExpenseDetails[i].Amount" readonly />
-                        <span asp-validation-for="ExpenseDetails[i].Amount"></span>
-                    </td>
-                    <td>
-                        <input asp-for="ExpenseDetails[i].Description" readonly />
-                        <span asp-validation-for="ExpenseDetails[i].Description"></span>
-                    </td>
-                    <td>
-                        <input asp-for="ExpenseDetails[i].StoreName" readonly />
-                        <span asp-validation-for="ExpenseDetails[i].StoreName"></span>
-                    </td>
-                    <td>
-                        <button type="button" class="btn-edit" data-id="ExpenseDetails[i].ExpenseDetailId">修改</button>
-                    </td>
-                    <td><button type="button" class="deleteRow">－ 移除</button></td>
+<h2 class="page-title">修改單據</h2>
+
+<div class="form-container">
+    <form asp-action="Edit" method="post">
+
+        <div class="section-title">主檔</div>
+        <input asp-for="Status" type="hidden" />
+        <input asp-for="ExpenseId" type="hidden" />
+
+        <div class="field-row">
+            <label asp-for="Title"></label>
+            <input asp-for="Title" readonly />
+            <span asp-validation-for="Title" class="validation-error"></span>
+        </div>
+        <div class="field-row">
+            <label asp-for="Description"></label>
+            <input asp-for="Description" readonly />
+            <span asp-validation-for="Description" class="validation-error"></span>
+        </div>
+        <div style="margin-bottom: 20px;">
+            <button type="button" class="btn-unlock" id="unlockMainBtn">修 改</button>
+        </div>
+
+        <div class="section-title">費用明細</div>
+        <button type="button" class="btn-add-row btn-addDetail">＋ 新增費用明細</button>
+
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>專案</th>
+                    <th>發票類型</th>
+                    <th>費用類別</th>
+                    <th>費用日期</th>
+                    <th>發票號碼</th>
+                    <th>金額</th>
+                    <th>說明</th>
+                    <th>商店名稱</th>
+                    <th>功能</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-    <div><button type="button" class="btn-addDetail">+ 新增費用明細</button></div>
-    <div>
-        <button type="submit">存 檔</button>
-        <a asp-action="Index" class="btn">取 消</a>
-    </div>
-</form>
+            </thead>
+            <tbody id="detailTableBody">
+                @for (int i = 0; i < (Model.ExpenseDetails?.Count ?? 0); i++)
+                {
+                    <tr class="detail-row">
+                        <td>
+                            <input asp-for="ExpenseDetails[i].ExpenseDetailId" type="hidden" />
+                            <input asp-for="ExpenseDetails[i].ExpenseId" type="hidden" />
+                        </td>
+                        <td>
+                            <select asp-for="ExpenseDetails[i].ProjectId" asp-items="@ViewBag.projectSelect"
+                                    style="pointer-events: none; background-color: #e9ecef;"></select>
+                        </td>
+                        <td>
+                            <select asp-for="ExpenseDetails[i].ReceiptType" asp-items="@ViewBag.Receipt"
+                                    style="pointer-events: none; background-color: #e9ecef;"></select>
+                        </td>
+                        <td>
+                            <select asp-for="ExpenseDetails[i].Category" asp-items="@ViewBag.Category"
+                                    style="pointer-events: none; background-color: #e9ecef;"></select>
+                        </td>
+                        <td>
+                            <input asp-for="ExpenseDetails[i].ExpenseDate" type="date" readonly />
+                            <span asp-validation-for="ExpenseDetails[i].ExpenseDate" class="validation-error"></span>
+                        </td>
+                        <td>
+                            <input asp-for="ExpenseDetails[i].InvoiceNumber" readonly />
+                            <span asp-validation-for="ExpenseDetails[i].InvoiceNumber" class="validation-error"></span>
+                        </td>
+                        <td>
+                            <input asp-for="ExpenseDetails[i].Amount" readonly />
+                            <span asp-validation-for="ExpenseDetails[i].Amount" class="validation-error"></span>
+                        </td>
+                        <td>
+                            <input asp-for="ExpenseDetails[i].Description" readonly />
+                            <span asp-validation-for="ExpenseDetails[i].Description" class="validation-error"></span>
+                        </td>
+                        <td>
+                            <input asp-for="ExpenseDetails[i].StoreName" readonly />
+                            <span asp-validation-for="ExpenseDetails[i].StoreName" class="validation-error"></span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn-unlock btn-edit">修改</button>
+                        </td>
+                        <td>
+                            <button type="button" class="btn-remove-row deleteRow">－ 移除</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">存 檔</button>
+            <a asp-action="Index" class="btn-secondary">取 消</a>
+        </div>
+
+    </form>
+</div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const expenseBtn = document.querySelectorAll('#expenseTableBody button');
-
-        expenseBtn.forEach(function (_expenseBtn) {
-            _expenseBtn.addEventListener('click', function () {
-                const tbody = this.closest('tbody');
-                const tbodyInputs = tbody.querySelectorAll('input:not([type="hidden"])');
-
-                // 解鎖 input
-                tbodyInputs.forEach(function (input) {
-                    input.removeAttribute('readonly');
-                });
-            });
-        });
-
-
-        document.getElementById('detailTableBody').addEventListener('click', function (e) {
-            const row = e.target.closest('tr');
-            const rowInputs = row.querySelectorAll('input:not([type="hidden"])');
-            const rowSelects = row.querySelectorAll('select');
-
-            // 解鎖
-            if (e.target.classList.contains('btn-edit')) {
-
-                rowInputs.forEach(function (input) {
-                    input.removeAttribute('readonly');
-                });
-
-                rowSelects.forEach(function (select) {
-                    select.style.pointerEvents = '';
-                    select.style.backgroundColor = '#ffffff';
-                    select.style.color = '#000000';
-                });
-            }
-
-
-            //刪除列
-            if (e.target.classList.contains('deleteRow')) {
-                if (row) {
-                    row.remove();
-                }
-            }
-        });
-
-       
-
-        //新增一筆明細空白列
-        const addDetailRowBtn = document.querySelector('.btn-addDetail');
-
-        addDetailRowBtn.addEventListener('click', function () {
-            const rowCount = document.querySelectorAll('.detail-row').length;
-            const tableBody = document.getElementById('detailTableBody');
-            const project = document.querySelector('select[name^="ExpenseDetails"][name$=".ProjectId"]');
-            const projectSelectOptions = project ? project.innerHTML : '';
-
-            const receipt = document.querySelector('select[name^="ExpenseDetails"][name$=".ReceiptType"]');
-            const receiptSelectOptions = receipt ? receipt.innerHTML : '';
-
-            const category = document.querySelector('select[name^="ExpenseDetails"][name$=".Category"]');
-            const categorySelectOptions = category ? category.innerHTML : '';
-
-            const newRowHtml = `<tr class="detail-row">
-                    <td>
-                        <input name="ExpenseDetails[${rowCount}].ExpenseDetailId" type="hidden" value="0" />
-                        <input name="ExpenseDetails[${rowCount}].ExpenseId" type="hidden"  value="@Model.ExpenseId" />
-                    </td>
-                    <td>
-                        <select name="ExpenseDetails[${rowCount}].ProjectId" >${projectSelectOptions}</select>
-                    </td>
-                    <td>
-                        <select name="ExpenseDetails[${rowCount}].ReceiptType">${receiptSelectOptions}</select>
-                    </td>
-                    <td>
-                        <select name="ExpenseDetails[${rowCount}].Category">${categorySelectOptions}</select>
-                    </td>
-                    <td>
-                        <input name="ExpenseDetails[${rowCount}].ExpenseDate" type="date"  />
-                    </td>
-                    <td>
-                        <input name="ExpenseDetails[${rowCount}].InvoiceNumber"  />
-                    </td>
-                    <td>
-                        <input name="ExpenseDetails[${rowCount}].Amount"  />
-                    </td>
-                    <td>
-                        <input name="ExpenseDetails[${rowCount}].Description"  />
-                    </td>
-                    <td>
-                        <input name="ExpenseDetails[${rowCount}].StoreName"  />
-                    </td>
-                    <td>
-                        <button type="button" class="deleteRow">－ 移除</button>
-                    </td>
-                </tr> `;
-
-            document.getElementById('detailTableBody').insertAdjacentHTML('beforeend', newRowHtml);
-        });
+    document.getElementById('unlockMainBtn').addEventListener('click', function () {
+        const inputs = document.querySelectorAll('#expenseTableBody input:not([type="hidden"])');
+        inputs.forEach(input => input.removeAttribute('readonly'));
     });
 
+    document.getElementById('detailTableBody').addEventListener('click', function (e) {
+        const row = e.target.closest('tr');
+
+        if (e.target.classList.contains('btn-edit')) {
+            row.querySelectorAll('input:not([type="hidden"])').forEach(input => input.removeAttribute('readonly'));
+            row.querySelectorAll('select').forEach(select => {
+                select.style.pointerEvents = '';
+                select.style.backgroundColor = '#ffffff';
+            });
+        }
+
+        if (e.target.classList.contains('deleteRow') && row) {
+            row.remove();
+        }
+    });
+
+    document.querySelector('.btn-addDetail').addEventListener('click', function () {
+        const rowCount = document.querySelectorAll('.detail-row').length;
+        const project = document.querySelector('select[name^="ExpenseDetails"][name$=".ProjectId"]');
+        const receipt = document.querySelector('select[name^="ExpenseDetails"][name$=".ReceiptType"]');
+        const category = document.querySelector('select[name^="ExpenseDetails"][name$=".Category"]');
+
+        const newRowHtml = `<tr class="detail-row">
+            <td>
+                <input name="ExpenseDetails[${rowCount}].ExpenseDetailId" type="hidden" value="0" />
+                <input name="ExpenseDetails[${rowCount}].ExpenseId" type="hidden" value="@Model.ExpenseId" />
+            </td>
+            <td><select name="ExpenseDetails[${rowCount}].ProjectId">${project ? project.innerHTML : ''}</select></td>
+            <td><select name="ExpenseDetails[${rowCount}].ReceiptType">${receipt ? receipt.innerHTML : ''}</select></td>
+            <td><select name="ExpenseDetails[${rowCount}].Category">${category ? category.innerHTML : ''}</select></td>
+            <td><input name="ExpenseDetails[${rowCount}].ExpenseDate" type="date" /></td>
+            <td><input name="ExpenseDetails[${rowCount}].InvoiceNumber" /></td>
+            <td><input name="ExpenseDetails[${rowCount}].Amount" /></td>
+            <td><input name="ExpenseDetails[${rowCount}].Description" /></td>
+            <td><input name="ExpenseDetails[${rowCount}].StoreName" /></td>
+            <td><button type="button" class="btn-unlock btn-edit">修改</button></td>
+            <td><button type="button" class="btn-remove-row deleteRow">－ 移除</button></td>
+        </tr>`;
+
+        document.getElementById('detailTableBody').insertAdjacentHTML('beforeend', newRowHtml);
+    });
 </script>
