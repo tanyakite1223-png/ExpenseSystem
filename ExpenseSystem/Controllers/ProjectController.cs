@@ -30,6 +30,8 @@ namespace ExpenseSystem.Controllers
         {
             var projectResult = _Context.Projects.Find(id);
 
+            if (projectResult == null) return NotFound();
+
             if (projectResult.ProjectName != "一般支出")
             {
                 projectResult.IsActive = false;

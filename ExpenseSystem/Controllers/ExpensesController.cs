@@ -356,6 +356,9 @@ namespace ExpenseSystem.Controllers
 
             if (expense == null) return NotFound();
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (expense.ApplicantId != userId) return Forbid();
+
             expense.Status = ExpenseStatus.Submitted;
 
             _context.Expenses.Update(expense);
