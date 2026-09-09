@@ -100,7 +100,7 @@ namespace ExpenseSystem.Controllers
                 return NotFound();
             }
 
-            _context.Expenses.Remove(expense);
+            expense.IsDeleted = true;
             await _context.SaveChangesAsync();
             return NoContent();
         }
