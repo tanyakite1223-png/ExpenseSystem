@@ -24,10 +24,10 @@
 建立
  ↓
 Draft（草稿）→ Submitted（待審）→ Approved（核准）
-                     ↓                 
-                  Rejected（駁回）      
-                     ↓                 
-                  Returned（退回補件）→ 申請者修改後重送 → Submitted
+                     ↓
+                     ├─→ Rejected（駁回，終止）
+                     │
+                     └─→ Returned（退回補件）→ 申請者修改後重送 → Submitted
 ```
 
 ---
@@ -42,7 +42,7 @@ Draft（草稿）→ Submitted（待審）→ Approved（核准）
 | 認證授權 | ASP.NET Core Identity + Cookie Auth |
 | 角色管理 | RBAC（Manager / Employee） |
 | API 文件 | Scalar |
-| 前端 | Razor Views + Bootstrap + Vanilla JavaScript |
+| 前端 | Razor Views + 自訂 CSS + Vanilla JavaScript |
 
 ---
 
@@ -77,7 +77,7 @@ dotnet ef database update
 dotnet run
 ```
 
-瀏覽器開啟：`http://localhost:5242`
+瀏覽器開啟：`http://localhost:5242/Login/Index`
 
 API 文件：`http://localhost:5242/scalar/v1`
 
