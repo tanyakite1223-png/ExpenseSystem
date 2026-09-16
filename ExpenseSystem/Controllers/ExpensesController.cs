@@ -123,14 +123,14 @@ namespace ExpenseSystem.Controllers
                 viewModel.Expense.ExpenseDetails = viewModel.ExpenseDetails;
 
                 _context.Expenses.Add(viewModel.Expense);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return RedirectToAction("Detail", new { id = viewModel.Expense.ExpenseId });
             }
 
             //專案名稱SelectListItem
             List<SelectListItem> items = new List<SelectListItem>();
-            var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+            var projectList =await _context.Projects.Where(p => p.IsActive == true).ToListAsync();
             foreach (var item in projectList)
             {
                 items.Add(new SelectListItem
