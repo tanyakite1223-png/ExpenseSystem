@@ -294,7 +294,7 @@ namespace ExpenseSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Review(int id)
         {
-            var expense = _context.Expenses.AsNoTracking().Include(ed => ed.ExpenseDetails).ThenInclude(p => p.Project).FirstOrDefault(e => e.ExpenseId == id);
+            var expense = await _context.Expenses.AsNoTracking().Include(ed => ed.ExpenseDetails).ThenInclude(p => p.Project).FirstOrDefaultAsync(e => e.ExpenseId == id);
             if (expense == null) return NotFound();
 
             ViewBag.username = await GetApplicantNameAsync(expense.ApplicantId);
@@ -312,7 +312,7 @@ namespace ExpenseSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Review(Expense expense)
         {
-            var _expense = _context.Expenses.AsNoTracking().FirstOrDefault(e => e.ExpenseId == expense.ExpenseId);
+            var _expense = await _context.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.ExpenseId == expense.ExpenseId);
 
             if (expense.Status == ExpenseStatus.Rejected && string.IsNullOrWhiteSpace(expense.RejectionReason))
             {
@@ -325,7 +325,7 @@ namespace ExpenseSystem.Controllers
                 expense.IsDeleted = _expense.IsDeleted;
                 expense.CreatedAt = _expense.CreatedAt;
                 _context.Expenses.Update(expense);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 return RedirectToAction("Index");
 
@@ -350,9 +350,9 @@ namespace ExpenseSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Submitted(int id)
+        public async Task<IActionResult> Submitted(int id)
         {
-            var expense = _context.Expenses.Find(id);
+            var expense = await _context.Expenses.FindAsync(id);
 
             if (expense == null) return NotFound();
 
@@ -362,7 +362,7 @@ namespace ExpenseSystem.Controllers
             expense.Status = ExpenseStatus.Submitted;
 
             _context.Expenses.Update(expense);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
