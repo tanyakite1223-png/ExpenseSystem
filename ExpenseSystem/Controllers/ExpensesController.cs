@@ -266,7 +266,7 @@ namespace ExpenseSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
-            var expense = _context.Expenses.AsNoTracking().Include(ed => ed.ExpenseDetails).ThenInclude(p => p.Project).FirstOrDefault(e => e.ExpenseId == id);
+            var expense = await _context.Expenses.AsNoTracking().Include(ed => ed.ExpenseDetails).ThenInclude(p => p.Project).FirstOrDefaultAsync(e => e.ExpenseId == id);
 
             if (expense == null) return NotFound();
 
@@ -279,13 +279,13 @@ namespace ExpenseSystem.Controllers
         [Authorize(Roles = "Manager")]
         [HttpPost]
         [ActionName("Delete")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var expense = _context.Expenses.Find(id);
+            var expense = await _context.Expenses.FindAsync(id);
             if (expense == null) return NotFound();
 
             expense.IsDeleted = true;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
