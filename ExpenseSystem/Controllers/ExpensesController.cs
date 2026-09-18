@@ -196,7 +196,7 @@ namespace ExpenseSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(Expense expense)
         {
-            var _expense = _context.Expenses.AsNoTracking().Include(ed => ed.ExpenseDetails).FirstOrDefault(e => e.ExpenseId == expense.ExpenseId);
+            var _expense =await _context.Expenses.AsNoTracking().Include(ed => ed.ExpenseDetails).FirstOrDefaultAsync(e => e.ExpenseId == expense.ExpenseId);
             if (_expense is null) return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -233,16 +233,16 @@ namespace ExpenseSystem.Controllers
 
                 //DB 有、但 POST 沒傳來的(delete)
                 var toDeleteIds = dbIds.Except(postIds);
-                var _toDeletes = _context.ExpenseDetails.Where(ed => toDeleteIds.Contains(ed.ExpenseDetailId));
+                var _toDeletes = await _context.ExpenseDetails.Where(ed => toDeleteIds.Contains(ed.ExpenseDetailId)).ToListAsync();
                 _context.ExpenseDetails.RemoveRange(_toDeletes);
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
 
             //專案名稱SelectListItem
             List<SelectListItem> items = new List<SelectListItem>();
-            var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+            var projectList = await _context.Projects.Where(p => p.IsActive == true).ToListAsync();
             foreach (var item in projectList)
             {
                 items.Add(new SelectListItem
