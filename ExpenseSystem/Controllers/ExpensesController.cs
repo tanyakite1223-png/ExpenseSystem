@@ -36,14 +36,14 @@ namespace ExpenseSystem.Controllers
 
             if (User.IsInRole(role: "Manager"))
             {
-                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft && e.Status != ExpenseStatus.Returned).Include(ed => ed.ExpenseDetails).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
-                TotalPages = _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft && e.Status != ExpenseStatus.Returned).Count();
+                expenseList = await _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft && e.Status != ExpenseStatus.Returned).Include(ed => ed.ExpenseDetails).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToListAsync();
+                TotalPages = await _context.Expenses.Where(e => e.IsDeleted == false && e.Status != ExpenseStatus.Draft && e.Status != ExpenseStatus.Returned).CountAsync();
             }
             else
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                expenseList = _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).Include(ed => ed.ExpenseDetails).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToList();
-                TotalPages = _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).Count();
+                expenseList = await _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).Include(ed => ed.ExpenseDetails).OrderByDescending(e => e.ExpenseId).Skip(skipRows).Take(pageSize).ToListAsync();
+                TotalPages = await _context.Expenses.Where(e => e.IsDeleted == false && e.ApplicantId == userId).CountAsync();
             }
 
             ViewBag.CurrentPage = page;
@@ -69,7 +69,7 @@ namespace ExpenseSystem.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             var viewModel = new ExpenseWithDetailsViewModel()
             {
@@ -82,7 +82,7 @@ namespace ExpenseSystem.Controllers
 
             //專案名稱SelectListItem
             List<SelectListItem> items = new List<SelectListItem>();
-            var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+            var projectList = await _context.Projects.Where(p => p.IsActive == true).ToListAsync();
             foreach (var item in projectList)
             {
                 items.Add(new SelectListItem
@@ -169,7 +169,7 @@ namespace ExpenseSystem.Controllers
             {
                 //專案名稱SelectListItem
                 List<SelectListItem> items = new List<SelectListItem>();
-                var projectList = _context.Projects.Where(p => p.IsActive == true).ToList();
+                var projectList = await _context.Projects.Where(p => p.IsActive == true).ToListAsync();
                 foreach (var item in projectList)
                 {
                     items.Add(new SelectListItem
